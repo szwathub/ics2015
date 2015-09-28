@@ -5,11 +5,13 @@
 
 typedef struct watchpoint {
 	int NO;
+	uint32_t watchpointadd;
+	uint32_t date;
+	int exist;
 	struct watchpoint *next;
 
 	/* TODO: Add more members if necessary */
-
-
 } WP;
 
+WP** get_wp_head();
 #endif

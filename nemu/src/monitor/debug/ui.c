@@ -38,6 +38,56 @@ static int cmd_q(char *args) {
 
 static int cmd_help(char *args);
 
+static int cmd_si(char *args) {
+	cpu_exec(atoi(args));
+	return 0;
+}
+
+static int cmd_info(char *args) {
+	WP *wp = *get_wp_head();
+	int i = 0;
+	if(*args == 'r') {
+		for(i = 0; i < 8; i++) {
+			printf("%s/t/t 0x%x/t%u", regsw[i], cpu.gpr[i]._32, cpu.gpr[i]._32);
+		}
+	}
+	else if(*args == 'w') {
+		if(wp->NO < 0) {
+			return -1;
+		}
+		else {
+			for(i = 0; i < wp->NO; i++) {
+				if(wp->exist == 1) {
+					printf("%d/t%d",wp->NO,wp->watchpointadd);
+				}
+				wp = wp->next;
+			}
+		}
+	}
+	return 0;
+}
+
+
+static int cmd_p(char *args) {
+	return 0;
+}
+
+static int cmd_scan(char *args) {
+	return 0;
+}
+
+static int cmd_w(char *args) {
+	return 0;
+}
+
+static int cmd_delete(char *args) {
+		return 0;
+}
+
+static int cmd_bt(char *args) {
+		return 0;
+}
+
 static struct {
 	char *name;
 	char *description;
@@ -46,6 +96,13 @@ static struct {
 	{ "help", "Display informations about all supported commands", cmd_help },
 	{ "c", "Continue the execution of the program", cmd_c },
 	{ "q", "Exit NEMU", cmd_q },
+	{ "si", "Single-step debugging", cmd_si},
+	{ "info", "Print reg status or watchpoint", cmd_info},
+	{ "p", "表达式求值", cmd_p},
+	{ "x", "Scan memory", cmd_scan},
+	{ "w", "Set a watchpoint", cmd_w},
+	{ "d", "Delete a watchpoint", cmd_delete},
+	{ "bt", "Print ", cmd_bt}
 
 	/* TODO: Add more commands */
 

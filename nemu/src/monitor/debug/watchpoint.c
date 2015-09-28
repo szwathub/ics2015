@@ -10,6 +10,7 @@ void init_wp_list() {
 	int i;
 	for(i = 0; i < NR_WP; i ++) {
 		wp_list[i].NO = i;
+		wp_list[i].exist = 1;
 		wp_list[i].next = &wp_list[i + 1];
 	}
 	wp_list[NR_WP - 1].next = NULL;
@@ -17,6 +18,11 @@ void init_wp_list() {
 	head = NULL;
 	free_ = wp_list;
 }
+
+WP **get_wp_head() {
+	return *free_;
+}
+
 
 /* TODO: Implement the functionality of watchpoint */
 
