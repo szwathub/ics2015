@@ -103,8 +103,12 @@ static int cmd_p(char *args) {
  * @param {string} args
  */
 static int cmd_scan(char *args) {
-	int i = atoi(args);
-	args = args + strlen(args) + 1;
+	char *arg = strtok(args, " ");
+	int i = atoi(arg);
+	printf("%d\n", i);
+	char *expr = arg + strlen(arg) + 1;
+	// 表达式
+	printf("%s\n", expr);
 	int j;
 	for(j = 0; j < i; j++) {
 		printf("%x\t", swaddr_read(0x100000, 4));
