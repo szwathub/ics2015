@@ -18,7 +18,7 @@ char* rl_gets() {
 		line_read = NULL;
 	}
 
-	line_read = readline("(nemu) ");
+	line_read = readline("(nemu) >");
 
 	if (line_read && *line_read) {
 		add_history(line_read);
@@ -26,32 +26,47 @@ char* rl_gets() {
 
 	return line_read;
 }
-
+/*
+ * @describe Continue the execution of the program
+ * @param {string} args
+ */
 static int cmd_c(char *args) {
 	cpu_exec(-1);
 	return 0;
 }
 
+/*
+ * @describe Exit NEMU
+ * @param {string} args
+ */
 static int cmd_q(char *args) {
 	return -1;
 }
 
 static int cmd_help(char *args);
 
+/*
+ * @describe Single-step Debugging
+ * @param {string} args
+ */
 static int cmd_si(char *args) {
 	cpu_exec(atoi(args));
 	return 0;
 }
 
+/*
+ * @describe Printing reg status or watchpoint
+ * @param {string} args
+ */
 static int cmd_info(char *args) {
 	WP *wp = get_wp_head();
 	int i = 0;
-	if(*args == 'r') {
+	if(strcmp(args, "r") == 0) {
 		for(i = 0; i < 8; i++) {
-			printf("%s\t\t 0x%x\t%u\n", regsw[i], cpu.gpr[i]._32, cpu.gpr[i]._32);
+			printf("%s\t\t 0x%x\t%u\n", regsl[i], cpu.gpr[i]._32, cpu.gpr[i]._32);
 		}
 	}
-	else if(*args == 'w') {
+	else if(strcmp(args, "w") == 0) {
 		if(wp->NO < 0) {
 			return -1;
 		}
@@ -64,29 +79,53 @@ static int cmd_info(char *args) {
 			}
 		}
 	}
+	else if(strcmp(args, "--help") == 0) {
+		printf("The most commonly used info commands are:\n\n");
+		printf("r\t\tprint reg status\n");
+		printf("w\t\tprint information of watchpoint\n");
+	}
 	else {
-		printf("Unknown command 'info %s'\n", args);
+		printf("info: '%s' is not a info command. See 'info --help'.\n", args);
 	}
 	return 0;
 }
 
-
+/* TODO
+ * @describe
+ * @param {string} args
+ */
 static int cmd_p(char *args) {
 	return 0;
 }
 
+/* TODO
+ * @describe Scan memoey
+ * @param {string} args
+ */
 static int cmd_scan(char *args) {
+
 	return 0;
 }
 
+/* TODO:
+ * @describe Set a watchpoint
+ * @param {string} args
+ */
 static int cmd_w(char *args) {
 	return 0;
 }
 
+/* TODO
+ * @describe Delete a watch point
+ * @param {string} args
+ */
 static int cmd_delete(char *args) {
-		return 0;
+	return 0;
 }
 
+/* TODO
+ *
+ */
 static int cmd_bt(char *args) {
 		return 0;
 }
@@ -121,17 +160,17 @@ static int cmd_help(char *args) {
 	if(arg == NULL) {
 		/* no argument given */
 		for(i = 0; i < NR_CMD; i ++) {
-			printf("%s - %s\n", cmd_table[i].name, cmd_table[i].description);
+			printf("%s\t\t%s\n", cmd_table[i].name, cmd_table[i].description);
 		}
 	}
 	else {
 		for(i = 0; i < NR_CMD; i ++) {
 			if(strcmp(arg, cmd_table[i].name) == 0) {
-				printf("%s - %s\n", cmd_table[i].name, cmd_table[i].description);
+				printf("%s\t\t%s\n", cmd_table[i].name, cmd_table[i].description);
 				return 0;
 			}
 		}
-		printf("Unknown command '%s'\n", arg);
+		printf("Nemu: command not found: %s\n", arg);
 	}
 	return 0;
 }
@@ -143,7 +182,9 @@ void ui_mainloop() {
 
 		/* extract the first token as the command */
 		char *cmd = strtok(str, " ");
-		if(cmd == NULL) { continue; }
+		if(cmd == NULL) {
+			continue;
+		}
 
 		/* treat the remaining string as the arguments,
 		 * which may need further parsing
@@ -161,11 +202,15 @@ void ui_mainloop() {
 		int i;
 		for(i = 0; i < NR_CMD; i ++) {
 			if(strcmp(cmd, cmd_table[i].name) == 0) {
-				if(cmd_table[i].handler(args) < 0) { return; }
+				if(cmd_table[i].handler(args) < 0) {
+					return;
+				}
 				break;
 			}
 		}
 
-		if(i == NR_CMD) { printf("Unknown command '%s'\n", cmd); }
+		if(i == NR_CMD) {
+			printf("Nemu: command not found: %s\n", cmd);
+		}
 	}
 }
