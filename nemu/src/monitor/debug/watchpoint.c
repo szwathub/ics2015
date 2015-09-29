@@ -17,13 +17,27 @@ void init_wp_list() {
 
 	head = NULL;
 	free_ = wp_list;
+	/*
+	WP *phead;
+	int i;
+	free_ = (WP *)malloc(sizeof(WP));
+	head = free_;
+	if(!free_) {
+		printf("Error!");
+	}
+	for(i = 0; i < NR_WP; i++) {
+		phead = (WP *)malloc(sizeof(WP));
+		head->NO = i;
+		head->exist = 1;
+		head->next = phead;
+		head = head->next;
+	}
+	head = NULL;
+	*/
 }
 
-WP **get_wp_head() {
-	return *free_;
+WP* get_wp_head() {
+	return free_;
 }
-
 
 /* TODO: Implement the functionality of watchpoint */
-
-

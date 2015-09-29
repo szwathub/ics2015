@@ -44,11 +44,11 @@ static int cmd_si(char *args) {
 }
 
 static int cmd_info(char *args) {
-	WP *wp = *get_wp_head();
+	WP *wp = get_wp_head();
 	int i = 0;
 	if(*args == 'r') {
 		for(i = 0; i < 8; i++) {
-			printf("%s/t/t 0x%x/t%u", regsw[i], cpu.gpr[i]._32, cpu.gpr[i]._32);
+			printf("%s\t\t 0x%x\t%u\n", regsw[i], cpu.gpr[i]._32, cpu.gpr[i]._32);
 		}
 	}
 	else if(*args == 'w') {
@@ -58,11 +58,14 @@ static int cmd_info(char *args) {
 		else {
 			for(i = 0; i < wp->NO; i++) {
 				if(wp->exist == 1) {
-					printf("%d/t%d",wp->NO,wp->watchpointadd);
+					printf("%d/t%d\n",wp->NO,wp->watchpointadd);
 				}
 				wp = wp->next;
 			}
 		}
+	}
+	else {
+		printf("Unknown command 'info %s'\n", args);
 	}
 	return 0;
 }
