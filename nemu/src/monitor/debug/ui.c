@@ -65,6 +65,12 @@ static int cmd_info(char *args) {
 		for(i = 0; i < 8; i++) {
 			printf("%s\t\t 0x%x\t%u\n", regsl[i], cpu.gpr[i]._32, cpu.gpr[i]._32);
 		}
+		for(i = 0; i < 8; i++) {
+			printf("%s\t\t 0x%x\t%u\n", regsw[i], cpu.gpr[i]._16, cpu.gpr[i]._16);
+		}
+		for(i = 0; i < 8; i++) {
+			//printf("%s\t\t 0x%x\t%u\n", regsb[i], cpu.gpr[i]._8, cpu.gpr[i]._8);
+		}
 	}
 	else if(strcmp(args, "w") == 0) {
 		if(wp->NO < 0) {
