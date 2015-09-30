@@ -61,8 +61,10 @@ static int cmd_si(char *args) {
 static int cmd_info(char *args) {
 	WP *wp = get_wp_head();
 	int i = 0;
-	if(strcmp(args, " ") == 0) {
-		printf("Erroe\n");
+	if(args == NULL) {
+		printf("The most commonly used info commands are:\n\n");
+		printf("r\t\tprint reg status\n");
+		printf("w\t\tprint information of watchpoint\n");
 	}
 	else if(strcmp(args, "r") == 0) {
 		for(i = 0; i < 8; i++) {
@@ -115,7 +117,7 @@ static int cmd_scan(char *args) {
 	char *arg = strtok(args, " ");
 	int i = atoi(arg);
 	args = arg + strlen(arg) + 1;
-	
+	//
 	int j;
 	for(j = 0; j < i; j++) {
 		printf("%x\t", swaddr_read(0x100000, 4));
