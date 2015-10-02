@@ -4,6 +4,7 @@
 #include "common.h"
 
 typedef struct watchpoint {
+	int total;
 	int NO;
 	uint32_t watchpointadd;
 	//uint32_t date;
