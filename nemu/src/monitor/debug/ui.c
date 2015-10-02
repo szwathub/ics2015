@@ -131,11 +131,10 @@ static int cmd_scan(char *args) {
  * @param {string} args
  */
 static int cmd_w(char *args) {
-	
 	return 0;
 }
 
-/* TODO
+/* 
  * @describe Delete a watch point
  * @param {string} args
  */
