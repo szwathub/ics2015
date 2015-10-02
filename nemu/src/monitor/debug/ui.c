@@ -131,6 +131,7 @@ static int cmd_scan(char *args) {
  * @param {string} args
  */
 static int cmd_w(char *args) {
+	
 	return 0;
 }
 
@@ -139,6 +140,23 @@ static int cmd_w(char *args) {
  * @param {string} args
  */
 static int cmd_delete(char *args) {
+	WP *wp = get_wp_head();
+	int i;
+	for(i = 0; i < 32; i++) {
+		if(atoi(args) >= 32) {
+			printf("Error!\n");
+			return 0;
+		}
+		else if(atoi(args) == wp->NO) {
+			wp->exist = 0;
+			return 0;
+		}
+		else {
+			printf("NO.%d watchpoint not found!\n", atoi(args));
+			return 0;
+		}
+		wp = wp->next;
+	}	
 	return 0;
 }
 
