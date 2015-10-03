@@ -119,13 +119,6 @@ static int cmd_p(char *args) {
  * @param {string} args
  */
 static int cmd_scan(char *args) {
-<<<<<<< HEAD
-	char *arg = strtok(args, " ");
-	int i = atoi(arg);
-	args = arg + strlen(arg) + 1;
-	//
-	int j;
-=======
 	char *args_len;
 	char *expr;
 	int i, j;
@@ -147,7 +140,6 @@ static int cmd_scan(char *args) {
 	 * 计算表达式
 	 */
 	printf("%s\n", expr);
->>>>>>> scan
 	for(j = 0; j < i; j++) {
 		printf("%x\t", swaddr_read(0x100000, 4));
 	}
