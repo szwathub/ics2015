@@ -103,13 +103,14 @@ static int cmd_p(char *args) {
  * @param {string} args
  */
 static int cmd_scan(char *args) {
-	char *args_len = args + strlen(args);
+	char *args_len;
 	char *expr;
 	int i, j;
 	if(args == NULL) {
 		printf("Simple: x N expr\n");
 		return 0;
 	}
+	args_len = args + strlen(args);
 	char *arg = strtok(args, " ");
 	i = atoi(arg);
 
