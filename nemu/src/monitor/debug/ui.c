@@ -114,16 +114,40 @@ static int cmd_p(char *args) {
 	return 0;
 }
 
-/* TODO
- * @describe Scan memoey
+/* TODOr
+ * @describe Scan memory
  * @param {string} args
  */
 static int cmd_scan(char *args) {
+<<<<<<< HEAD
 	char *arg = strtok(args, " ");
 	int i = atoi(arg);
 	args = arg + strlen(arg) + 1;
 	//
 	int j;
+=======
+	char *args_len;
+	char *expr;
+	int i, j;
+	if(args == NULL) {
+		printf("Simple: x N expr\n");
+		return 0;
+	}
+	args_len = args + strlen(args);
+	char *arg = strtok(args, " ");
+	i = atoi(arg);
+
+	expr = arg + strlen(arg) + 1;
+
+	if(expr > args_len) {
+		printf("Simple: x N expr\n");
+		return 0;
+	}
+	/* TODO
+	 * 计算表达式
+	 */
+	printf("%s\n", expr);
+>>>>>>> scan
 	for(j = 0; j < i; j++) {
 		printf("%x\t", swaddr_read(0x100000, 4));
 	}
