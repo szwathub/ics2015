@@ -103,11 +103,24 @@ static int cmd_p(char *args) {
  * @param {string} args
  */
 static int cmd_scan(char *args) {
+	char *args_len = args + strlen(args);
+	char *expr;
+	if(args == NULL) {
+		printf("Simple: x N expr\n");
+		return 0;
+	}
 	char *arg = strtok(args, " ");
 	int i = atoi(arg);
-	printf("%d\n", i);
-	char *expr = arg + strlen(arg) + 1;
-	// 表达式
+
+	expr = arg + strlen(arg) + 1;
+
+	if(expr > args_len) {
+		printf("Simple: x N expr\n");
+		return 0;
+	}
+	/* TODO
+	 * 计算表达式
+	 */
 	printf("%s\n", expr);
 	int j;
 	for(j = 0; j < i; j++) {
