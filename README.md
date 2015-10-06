@@ -1,3 +1,13 @@
+# TODO
+- [x] 单步执行
+- [x] 打印程序状态
+- [ ] 表达式求值
+- [x] 扫描内存
+- [ ] 设置监视点
+    - [x] 设置监视点
+    - [x] 删除监视点
+    - [x] 打印监视点信息
+    
 # ICS2015 Programming Assignment
 
 This project is the programming assignment of the class ICS(Introduction to Computer System) in Department of Computer Science and Technology, NanJing University.
