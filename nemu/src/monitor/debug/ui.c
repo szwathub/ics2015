@@ -126,36 +126,74 @@ static int cmd_scan(char *args) {
 	return 0;
 }
 
-/* TODO:
+/* TODO: Implement set watchpoint
  * @describe Set a watchpoint
  * @param {string} args
  */
 static int cmd_w(char *args) {
+    WP *wp = get_wp_head();
+	if(wp->total >= 32) {
+		printf("Error\n");
+	}
+    for(; wp->next != NULL; wp = wp->next) {
+        if(wp->exist == 0) {
+			//wp->watchpointaddr = calculate(args,strlen(args));
+            //wp->data = swaddr_read(wp->watchpointaddr,NULL);
+            wp->exist = 1;
+			wp->total = wp->total + 1;
+            printf("The watchpoint is set.\n");
+			printf("%d\n", wp->total);
+			return 0;
+        }
+    }
 	return 0;
 }
 
-/* 
+/*
  * @describe Delete a watch point
  * @param {string} args
  */
 static int cmd_delete(char *args) {
 	WP *wp = get_wp_head();
-	int i;
-	for(i = 0; i < 32; i++) {
-		if(atoi(args) >= 32) {
-			printf("Error!\n");
-			return 0;
-		}
-		else if(atoi(args) == wp->NO) {
+	if(atoi(args) >= 32) {
+		printf("Error!\n");
+		return 0;
+	}
+	for(; wp->next != NULL; wp = wp->next) {
+		if(atoi(args) == wp->NO && wp->exist != 0) {
 			wp->exist = 0;
+			wp->total--;
+			printf("No.%d watchpoint has been deleted\n", atoi(args));
 			return 0;
 		}
-		else {
-			printf("NO.%d watchpoint not found!\n", atoi(args));
-			return 0;
+	}
+
+	printf("NO.%d watchpoint not found!\n", atoi(args));
+
+	return 0;
+}
+
+/* TODO
+ * @describe print the information of all or single watchpoint
+ * @param {strinh} args
+ */
+static int cmd_i(char *args) {
+	WP *wp = get_wp_head();
+	if(args == NULL) {
+		for(; wp->next != NULL; wp = wp->next) {
+			if(wp->exist != 0) {
+				printf("No.%d watchpoint: information\n", wp->NO);
+			}
 		}
-		wp = wp->next;
-	}	
+	}
+	else {
+		for(; wp->next != NULL; wp = wp->next) {
+			if(atoi(args) == wp->NO) {
+				printf("Some information\n");
+			}
+		}
+	}
+
 	return 0;
 }
 
@@ -180,6 +218,7 @@ static struct {
 	{ "x", "Scan memory", cmd_scan},
 	{ "w", "Set a watchpoint", cmd_w},
 	{ "d", "Delete a watchpoint", cmd_delete},
+	{ "i", "Print the information of watchpoint", cmd_i},
 	{ "bt", "Print ", cmd_bt}
 
 	/* TODO: Add more commands */
@@ -212,6 +251,7 @@ static int cmd_help(char *args) {
 }
 
 void ui_mainloop() {
+	init_wp_list();
 	while(1) {
 		char *str = rl_gets();
 		char *str_end = str + strlen(str);
