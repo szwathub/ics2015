@@ -7,7 +7,8 @@
 #include <regex.h>
 
 char *substring(char* ch, int pos, int length);
-
+uint32_t eval(int p, int q);
+bool check_parentness(int p, int q);
 enum {
 	NOTYPE = 256, EQ, HEX_NUM, DEC_NUM, REG
 
@@ -97,48 +98,48 @@ static bool make_token(char *e) {
 
 				switch(rules[i].token_type) {
 					case DEC_NUM:
-						tokens[nr_token-1].type = DEC_NUM;
-						strcpy(tokens[nr_token-1].str,
+						tokens[nr_token - 1].type = DEC_NUM;
+						strcpy(tokens[nr_token - 1].str,
 								substring(substr_start, 0, substr_len));
 						break;
 					case HEX_NUM:
 						tokens[nr_token].type = HEX_NUM;
-						strcpy(tokens[nr_token-1].str,
+						strcpy(tokens[nr_token - 1].str,
 								substring(substr_start, 0, substr_len));
 						break;
 					case '+':
-						tokens[nr_token-1].type = '+';
-						strcpy(tokens[nr_token-1].str,
+						tokens[nr_token - 1].type = '+';
+						strcpy(tokens[nr_token - 1].str,
 								substring(substr_start, 0, substr_len));
 						break;
 					case '-':
 						tokens[nr_token].type = '-';
-						strcpy(tokens[nr_token-1].str,
+						strcpy(tokens[nr_token - 1].str,
 								substring(substr_start, 0, substr_len));
 						break;
 					case '*':
 						tokens[nr_token].type = '*';
-						strcpy(tokens[nr_token-1].str,
+						strcpy(tokens[nr_token - 1].str,
 								substring(substr_start, 0, substr_len));
 						break;
 					case '/':
 						tokens[nr_token].type = '/';
-						strcpy(tokens[nr_token-1].str,
+						strcpy(tokens[nr_token - 1].str,
 								substring(substr_start, 0, substr_len));
 						break;
 					case '(':
 						tokens[nr_token].type = '(';
-						strcpy(tokens[nr_token-1].str,
+						strcpy(tokens[nr_token - 1].str,
 								substring(substr_start, 0, substr_len));
 								break;
 					case ')':
 						tokens[nr_token].type = ')';
-						strcpy(tokens[nr_token-1].str,
+						strcpy(tokens[nr_token - 1].str,
 								substring(substr_start, 0, substr_len));
 						break;
 					case REG:
 						tokens[nr_token].type = REG;
-						strcpy(tokens[nr_token-1].str,
+						strcpy(tokens[nr_token - 1].str,
 								substring(substr_start, 0, substr_len));
 						break;
 					case NOTYPE:
@@ -161,12 +162,50 @@ static bool make_token(char *e) {
 }
 
 /*
+ * @describe get the value of the reg
+ * @param {string} reg
+ * @return {uint32_t}
+ */
+uint32_t getreg(char* reg) {
+	uint32_t res;
+	if(!strcmp(reg, "eax")) res = cpu.eax;
+	else if(!strcmp(reg, "$ecx")) res = cpu.ecx;
+	else if(!strcmp(reg, "$edx")) res = cpu.edx;
+	else if(!strcmp(reg, "$ebx")) res = cpu.ebx;
+	else if(!strcmp(reg, "$esp")) res = cpu.esp;
+	else if(!strcmp(reg, "$ebp")) res = cpu.ebp;
+	else if(!strcmp(reg, "$esi")) res = cpu.esi;
+	else if(!strcmp(reg, "$edi")) res = cpu.edi;
+
+	else if(!strcmp(reg, "$eip")) res = cpu.eip;
+
+	else if(!strcmp(reg, "$ax")) res = reg_w(0);
+	else if(!strcmp(reg, "$cx")) res = reg_w(1);
+	else if(!strcmp(reg, "$dx")) res = reg_w(2);
+	else if(!strcmp(reg, "$bx")) res = reg_w(3);
+	else if(!strcmp(reg, "$sp")) res = reg_w(4);
+	else if(!strcmp(reg, "$bp")) res = reg_w(5);
+	else if(!strcmp(reg, "$si")) res = reg_w(6);
+	else if(!strcmp(reg, "$di")) res = reg_w(7);
+
+	else if(!strcmp(reg, "$al")) res = reg_b(0);
+	else if(!strcmp(reg, "$cl")) res = reg_b(1);
+	else if(!strcmp(reg, "$dl")) res = reg_b(2);
+	else if(!strcmp(reg, "$bl")) res = reg_b(3);
+	else if(!strcmp(reg, "$ah")) res = reg_b(4);
+	else if(!strcmp(reg, "$ch")) res = reg_b(5);
+	else if(!strcmp(reg, "$dh")) res = reg_b(6);
+	else if(!strcmp(reg, "$bh")) res = reg_b(7);
+
+	else assert(0);
+	return res;
+}
+/*
  * @describe evaluate the expression and return the value
  * @param {int, int} p, q
  * @return {int} value
  */
-
-int eval(int p, int q) {
+uint32_t eval(int p, int q) {
 	if(p > q) {
 		/* Bad expression */
 		;
@@ -177,7 +216,18 @@ int eval(int p, int q) {
 		 * For now, this token should be a number
 		 * return the value of the exprssion
 		 */
-		 ;
+		if(tokens[p].type == DEC_NUM || tokens[p].type == HEX_NUM) {
+			return atoi(tokens[q].str);
+		}
+		else if(tokens[p].type == REG) {
+			return getreg(tokens[p].str);
+		}
+	}
+	else if(check_parentness(p, q) == true) {
+		/* the expression is surrounded by a matched pair of parentheses.
+		 * If that is the case, just throw away the parentheses.
+		 */
+		return eval(p + 1, q - 1);
 	}
 	else {
 		//val1 = eval(p, op-1);
@@ -217,6 +267,35 @@ char *substring(char* ch, int pos, int length) {
 	subch[length] = '\0';
 
 	return subch;
+}
+
+/*
+ * @describe
+ * @param {int, int} p, q;
+ * return {boolean}
+ */
+bool check_parentness(int p, int q) {
+	if(tokens[p].type == '(' && tokens[q].type == ')') {
+		int i = p + 1;
+		int j = 0;
+
+		while(i < q) {
+			if(tokens[i].type == '(') {
+                j++;
+            }
+			else if(tokens[i].type == ')') {
+                if(j == 0) {
+					return false;
+				}
+                j--;
+            }
+            i++;
+        }
+        if(j == 0) {
+            return true;
+		}
+	}
+	return false;
 }
 
 uint32_t expr(char *e, bool *success) {
