@@ -6,8 +6,11 @@
 #include <stdlib.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include "cpu/helper.h"
 
 void cpu_exec(uint32_t);
+void print_bin_instr(swaddr_t eip, int len);
+void ptest(swaddr_t eip_temp,int instr_len,int n_temp);
 
 /* We use the ``readline'' library to provide more flexibility to read from stdin. */
 char* rl_gets() {
@@ -126,28 +129,31 @@ static int cmd_p(char *args) {
  */
 static int cmd_scan(char *args) {
 	char *args_len;
-	char *expr;
-	int i, j;
+	char *expression;
+	int count;
 	if(args == NULL) {
 		printf("Simple: x N expr\n");
 		return 0;
 	}
 	args_len = args + strlen(args);
 	char *arg = strtok(args, " ");
-	i = atoi(arg);
+	count = atoi(arg);
 
-	expr = arg + strlen(arg) + 1;
+	expression = arg + strlen(arg) + 1;
 
-	if(expr > args_len) {
+	if(expression > args_len) {
 		printf("Simple: x N expr\n");
 		return 0;
 	}
-	/* TODO
-	 * 计算表达式
-	 */
-	printf("%s\n", expr);
-	for(j = 0; j < i; j++) {
-		printf("%x\t", swaddr_read(0x100000, 4));
+	bool flag;
+	uint32_t address = expr(expression, &flag);
+	while(count > 8) {
+		print_bin_instr(address, 8);
+		address += 8;
+		count -= 8;
+	}
+	if(count > 0) {
+		print_bin_instr(address, count);
 	}
 	printf("\n");
 	return 0;
