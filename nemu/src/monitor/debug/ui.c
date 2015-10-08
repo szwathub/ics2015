@@ -6,8 +6,11 @@
 #include <stdlib.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include "cpu/helper.h"
 
 void cpu_exec(uint32_t);
+void print_bin_instr(swaddr_t eip, int len);
+void ptest(swaddr_t eip_temp,int instr_len,int n_temp);
 
 /* We use the ``readline'' library to provide more flexibility to read from stdin. */
 char* rl_gets() {
@@ -50,7 +53,12 @@ static int cmd_help(char *args);
  * @param {string} args
  */
 static int cmd_si(char *args) {
-	cpu_exec(atoi(args));
+	if(args == NULL) {
+		cpu_exec(1);
+	}
+	else {
+		cpu_exec(atoi(args));
+	}
 	return 0;
 }
 
@@ -106,21 +114,46 @@ static int cmd_info(char *args) {
  * @param {string} args
  */
 static int cmd_p(char *args) {
+	if(args == NULL) {
+		printf("Simple: p expr\n");
+		return 0;
+	}
+	bool flag;
+	printf("%d\n", expr(args, &flag));
 	return 0;
 }
 
-/* TODO
- * @describe Scan memoey
+/* TODOr
+ * @describe Scan memory
  * @param {string} args
  */
 static int cmd_scan(char *args) {
+	char *args_len;
+	char *expression;
+	int count;
+	if(args == NULL) {
+		printf("Simple: x N expr\n");
+		return 0;
+	}
+	args_len = args + strlen(args);
 	char *arg = strtok(args, " ");
-	int i = atoi(arg);
-	args = arg + strlen(arg) + 1;
-	//
-	int j;
-	for(j = 0; j < i; j++) {
-		printf("%x\t", swaddr_read(0x100000, 4));
+	count = atoi(arg);
+
+	expression = arg + strlen(arg) + 1;
+
+	if(expression > args_len) {
+		printf("Simple: x N expr\n");
+		return 0;
+	}
+	bool flag;
+	uint32_t address = expr(expression, &flag);
+	while(count > 8) {
+		print_bin_instr(address, 8);
+		address += 8;
+		count -= 8;
+	}
+	if(count > 0) {
+		print_bin_instr(address, count);
 	}
 	printf("\n");
 	return 0;

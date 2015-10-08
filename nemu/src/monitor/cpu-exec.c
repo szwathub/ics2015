@@ -26,6 +26,8 @@ void print_bin_instr(swaddr_t eip, int len) {
 		l += sprintf(asm_buf + l, "%02x ", instr_fetch(eip + i, 1));
 	}
 	sprintf(asm_buf + l, "%*.s", 50 - (12 + 3 * len), "");
+	//strcat(asm_buf, assembly);
+	printf("%s\n", asm_buf);
 }
 
 /* This function will be called when an `int3' instruction is being executed. */
