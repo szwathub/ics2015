@@ -5,10 +5,13 @@
  */
 #include <sys/types.h>
 #include <regex.h>
+#include <stdlib.h>
 
 char *substring(char* ch, int pos, int length);
 uint32_t eval(int p, int q);
 bool check_parentness(int p, int q);
+uint32_t hextodec(char *str);
+
 enum {
 	NOTYPE = 256, EQ, HEX_NUM, DEC_NUM, REG
 
@@ -28,14 +31,14 @@ static struct rule {
 	{" +",	NOTYPE},				// spaces
 	{"\\+", '+'},					// plus
 	{"==", EQ},						// equal
-	{"-", '-'},						//sub
-	{"\\*", '*'},					//mul
-	{"/", '/'},						//div
+	{"-", '-'},						// sub
+	{"\\*", '*'},					// mul
+	{"/", '/'},						// div
 	{"\\(", '('},
 	{"\\)", ')'},
-	{"[0-9]+", DEC_NUM},			//number
-	{"0x[0-9a-fA-f]+", HEX_NUM},	//
-	{"\\$[a-z]+", REG},				//REG
+	{"0x[0-9a-fA-F]+", HEX_NUM},	//
+	{"[0-9]+", DEC_NUM},			// number
+	{"\\$[a-z]+", REG},				// REG
 };
 
 #define NR_REGEX (sizeof(rules) / sizeof(rules[0]) )
@@ -80,14 +83,13 @@ static bool make_token(char *e) {
 		for(i = 0; i < NR_REGEX; i ++) {
 			if(regexec(&re[i], e + position, 1, &pmatch, 0) == 0
 				&& pmatch.rm_so == 0) {
-				nr_token++;
 				char *substr_start = e + position;
 				int substr_len = pmatch.rm_eo;
 
 
-				Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
-					i, rules[i].regex, position, substr_len,
-					substr_len, substr_start);
+				//Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
+				//	i, rules[i].regex, position, substr_len,
+				//	substr_len, substr_start);
 
 				position += substr_len;
 
@@ -98,49 +100,58 @@ static bool make_token(char *e) {
 
 				switch(rules[i].token_type) {
 					case DEC_NUM:
-						tokens[nr_token - 1].type = DEC_NUM;
-						strcpy(tokens[nr_token - 1].str,
+						tokens[nr_token].type = DEC_NUM;
+						strcpy(tokens[nr_token].str,
 								substring(substr_start, 0, substr_len));
+						nr_token++;
 						break;
 					case HEX_NUM:
 						tokens[nr_token].type = HEX_NUM;
-						strcpy(tokens[nr_token - 1].str,
+						strcpy(tokens[nr_token].str,
 								substring(substr_start, 0, substr_len));
+						nr_token++;
 						break;
 					case '+':
-						tokens[nr_token - 1].type = '+';
-						strcpy(tokens[nr_token - 1].str,
+						tokens[nr_token].type = '+';
+						strcpy(tokens[nr_token].str,
 								substring(substr_start, 0, substr_len));
+						nr_token++;
 						break;
 					case '-':
 						tokens[nr_token].type = '-';
-						strcpy(tokens[nr_token - 1].str,
+						strcpy(tokens[nr_token].str,
 								substring(substr_start, 0, substr_len));
+						nr_token++;
 						break;
 					case '*':
 						tokens[nr_token].type = '*';
-						strcpy(tokens[nr_token - 1].str,
+						strcpy(tokens[nr_token].str,
 								substring(substr_start, 0, substr_len));
+						nr_token++;
 						break;
 					case '/':
 						tokens[nr_token].type = '/';
-						strcpy(tokens[nr_token - 1].str,
+						strcpy(tokens[nr_token].str,
 								substring(substr_start, 0, substr_len));
+						nr_token++;
 						break;
 					case '(':
 						tokens[nr_token].type = '(';
-						strcpy(tokens[nr_token - 1].str,
+						strcpy(tokens[nr_token].str,
 								substring(substr_start, 0, substr_len));
-								break;
+						nr_token++;
+						break;
 					case ')':
 						tokens[nr_token].type = ')';
-						strcpy(tokens[nr_token - 1].str,
+						strcpy(tokens[nr_token].str,
 								substring(substr_start, 0, substr_len));
+						nr_token++;
 						break;
 					case REG:
 						tokens[nr_token].type = REG;
-						strcpy(tokens[nr_token - 1].str,
+						strcpy(tokens[nr_token].str,
 								substring(substr_start, 0, substr_len));
+						nr_token++;
 						break;
 					case NOTYPE:
 						break;
@@ -168,7 +179,7 @@ static bool make_token(char *e) {
  */
 uint32_t getreg(char* reg) {
 	uint32_t res;
-	if(!strcmp(reg, "eax")) res = cpu.eax;
+	if(!strcmp(reg, "$eax")) res = cpu.eax;
 	else if(!strcmp(reg, "$ecx")) res = cpu.ecx;
 	else if(!strcmp(reg, "$edx")) res = cpu.edx;
 	else if(!strcmp(reg, "$ebx")) res = cpu.ebx;
@@ -208,7 +219,7 @@ uint32_t getreg(char* reg) {
 uint32_t eval(int p, int q) {
 	if(p > q) {
 		/* Bad expression */
-		;
+		assert(0);
 	}
 	else if(p == q) {
 		/*
@@ -216,10 +227,13 @@ uint32_t eval(int p, int q) {
 		 * For now, this token should be a number
 		 * return the value of the exprssion
 		 */
-		if(tokens[p].type == DEC_NUM || tokens[p].type == HEX_NUM) {
-			return atoi(tokens[q].str);
+		if(tokens[p].type == DEC_NUM) {
+			return atoi(tokens[p].str);
 		}
-		else if(tokens[p].type == REG) {
+		if(tokens[p].type == HEX_NUM) {
+			return strtol(tokens[p].str, NULL, 16);
+		}
+		if(tokens[p].type == REG) {
 			return getreg(tokens[p].str);
 		}
 	}
@@ -230,17 +244,50 @@ uint32_t eval(int p, int q) {
 		return eval(p + 1, q - 1);
 	}
 	else {
-		//val1 = eval(p, op-1);
-		//val2 = eval(op+1, q);
-		/*
-		switch(token_type) {
-			case '+': return val1 + val2;
-			case '-': ;
-			case '*': ;
-			case '/': ;
-			default: assert(0);
-			;
-		}*/
+		int i = p;
+		int j = 0;
+		int op = -1;
+		int flag = 0;
+		uint32_t val1;
+		uint32_t val2;
+
+		for(j = 0; i <= q; i++) {
+			if(j == 0
+				&& (tokens[i].type == '+' || tokens[i].type == '-')) {
+				if(flag < 2) {
+					op = i;
+					flag = 2;
+				}
+			}
+			else if(j == 0
+				&& (tokens[i].type == '*' || tokens[i].type == '/')) {
+				if(op == -1) {
+					op = i;
+				}
+				if( flag < 1) {
+					op = i;
+					flag = 1;
+				}
+			}
+		}
+
+		val1 = eval(p, op - 1);
+		val2 = eval(op + 1, q);
+		switch(tokens[op].type) {
+			case '+':
+				return val1 + val2;
+				break;
+			case '-':
+				return val1 - val2;
+				break;
+			case '*':
+				return val1 * val2;
+				break;
+			case '/':
+				return val1 / val2;
+				break;
+				default: assert(0);
+		}
 	}
 
 	return 0;
@@ -253,11 +300,9 @@ uint32_t eval(int p, int q) {
  * @return {string}
  */
 char *substring(char* ch, int pos, int length) {
-	char *pch = ch;
-
-	char *subch = (char *)calloc(sizeof(char), length+1);
-
 	int i;
+	char *pch = ch;
+	char *subch = (char *)calloc(sizeof(char), length+1);
 
 	pch = pch + pos;
 
@@ -281,30 +326,54 @@ bool check_parentness(int p, int q) {
 
 		while(i < q) {
 			if(tokens[i].type == '(') {
-                j++;
-            }
+				j++;
+			}
 			else if(tokens[i].type == ')') {
-                if(j == 0) {
+				if(j == 0) {
 					return false;
 				}
-                j--;
-            }
-            i++;
-        }
-        if(j == 0) {
-            return true;
+				j--;
+			}
+			i++;
+		}
+		if(j == 0) {
+			return true;
 		}
 	}
 	return false;
+}
+
+/*
+ * @describe HEX_NUM to DEC_NUM
+ * @param {string}
+ * @return {int}
+ */
+uint32_t hextodec(char *str) {
+	int len = strlen(str);
+	int i;
+
+	uint32_t res = 0;
+	for(i = 2; i < len; i++) {
+		if(str[i] >= 'A' && str[i] <= 'F') {
+			res = res * 16 + (str[i] - 'A' + 10);
+		}
+		if(str[i] >= 'a' && str[i] <= 'f') {
+			res = res * 16 + (str[i] - 'a' + 10);
+		}
+		if(str[i] >= '0' && str[i] <= '9') {
+			res = res * 16 + (str[i] - '0');
+		}
+	}
+	return res;
 }
 
 uint32_t expr(char *e, bool *success) {
     int i;
 	if(!make_token(e)) {
 		*success = false;
-		printf("Error");
 		return 0;
 	}
+	*success = true;
 	/* TODO: Insert codes to evaluate the expression. */
 	for(i = 0; i < nr_token; i++) {
 		if(tokens[i].type == '*' && (i == 0 || tokens[i-1].type != DEC_NUM)) {
@@ -313,8 +382,8 @@ uint32_t expr(char *e, bool *success) {
 		}
 	}
 	for(i = 0; i < nr_token; i++) {
-		printf("%s\n", tokens[i].str);
+		printf("tokens[%d]: type: %d : %s\n", i, tokens[i].type ,tokens[i].str);
 	}
+	return eval(0, nr_token - 1);
 	//panic("please implement me");
-	return 0;
 }

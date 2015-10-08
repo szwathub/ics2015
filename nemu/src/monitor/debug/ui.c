@@ -116,7 +116,7 @@ static int cmd_p(char *args) {
 		return 0;
 	}
 	bool flag;
-	expr(args, &flag);
+	printf("%d\n", expr(args, &flag));
 	return 0;
 }
 
