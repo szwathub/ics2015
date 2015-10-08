@@ -111,6 +111,12 @@ static int cmd_info(char *args) {
  * @param {string} args
  */
 static int cmd_p(char *args) {
+	if(args == NULL) {
+		printf("Simple: p expr\n");
+		return 0;
+	}
+	bool flag;
+	printf("%d\n", expr(args, &flag));
 	return 0;
 }
 
