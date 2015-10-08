@@ -14,7 +14,9 @@ bool check_parentness(int p, int q);
 uint32_t hextodec(char *str);
 
 enum {
-	NOTYPE = 256, EQ, HEX_NUM, DEC_NUM, REG, DEREF, NEG
+	NOTYPE = 256, EQ, NEQ, LEQ, GEQ, L, G,
+	HEX_NUM, DEC_NUM, REG,
+	DEREF, NEG
 
 	/* TODO: Add more token types */
 
@@ -31,7 +33,12 @@ static struct rule {
 
 	{" +",	NOTYPE},				// spaces
 	{"\\+", '+'},					// plus
+	{"!=", NEQ},					// not equal
 	{"==", EQ},						// equal
+	{"<=", LEQ},					// less than or equal
+	{">=", GEQ},					// great than or equal
+	{"<", L},						// less than
+	{">", G},						// great than
 	{"-", '-'},						// sub
 	{"\\*", '*'},					// mul
 	{"/", '/'},						// div
@@ -171,6 +178,42 @@ static bool make_token(char *e) {
 								substring(substr_start, 0, substr_len));
 						nr_token++;
 						break;
+					case EQ:
+						tokens[nr_token].type = EQ;
+						strcpy(tokens[nr_token].str,
+								substring(substr_start, 0, substr_len));
+						nr_token++;
+						break;
+					case NEQ:
+						tokens[nr_token].type = NEQ;
+						strcpy(tokens[nr_token].str,
+								substring(substr_start, 0, substr_len));
+						nr_token++;
+						break;
+					case LEQ:
+						tokens[nr_token].type = LEQ;
+						strcpy(tokens[nr_token].str,
+								substring(substr_start, 0, substr_len));
+						nr_token++;
+						break;
+					case GEQ:
+						tokens[nr_token].type = GEQ;
+						strcpy(tokens[nr_token].str,
+								substring(substr_start, 0, substr_len));
+						nr_token++;
+						break;
+					case L:
+						tokens[nr_token].type = L;
+						strcpy(tokens[nr_token].str,
+								substring(substr_start, 0, substr_len));
+						nr_token++;
+						break;
+					case G:
+						tokens[nr_token].type = G;
+						strcpy(tokens[nr_token].str,
+								substring(substr_start, 0, substr_len));
+						nr_token++;
+						break;
 					case NOTYPE:
 						break;
 					//default: panic("please implement me");
@@ -290,6 +333,15 @@ uint32_t eval(int p, int q) {
 				j--;
 			}
 			else if(j == 0
+				&& (tokens[i].type == EQ || tokens[i].type == NEQ
+					|| tokens[i].type == LEQ || tokens[i].type == GEQ
+					|| tokens[i].type == L || tokens[i].type == G)) {
+            	if(flag < 4) {
+                	flag = 4;
+                	op = i;
+                }
+            }
+			else if(j == 0
 				&& (tokens[i].type == '+' || tokens[i].type == '-')) {
 				if(flag < 2) {
 					op = i;
@@ -323,6 +375,25 @@ uint32_t eval(int p, int q) {
 			case '/':
 				return val1 / val2;
 				break;
+			case EQ:
+				return val1 == val2 ? 1 : 0;
+				break;
+			case NEQ:
+				return val1 != val2 ? 1 : 0;
+				break;
+			case LEQ:
+				return val1 <= val2 ? 1 : 0;
+				break;
+			case GEQ:
+				return val1 >= val2 ? 1 : 0;
+				break;
+			case L:
+				return val1 < val2 ? 1 : 0;
+				break;
+			case G:
+				return val1 > val2 ? 1 : 0;
+				break;
+
 			default: assert(0);
 		}
 	}
