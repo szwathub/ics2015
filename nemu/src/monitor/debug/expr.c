@@ -4,6 +4,7 @@
  * Type 'man regex' for more information about POSIX regex functions.
  */
 #include <sys/types.h>
+#include "cpu/helper.h"
 #include <regex.h>
 #include <stdlib.h>
 
@@ -13,7 +14,7 @@ bool check_parentness(int p, int q);
 uint32_t hextodec(char *str);
 
 enum {
-	NOTYPE = 256, EQ, HEX_NUM, DEC_NUM, REG
+	NOTYPE = 256, EQ, HEX_NUM, DEC_NUM, REG, DEREF, NEG
 
 	/* TODO: Add more token types */
 
@@ -36,7 +37,7 @@ static struct rule {
 	{"/", '/'},						// div
 	{"\\(", '('},
 	{"\\)", ')'},
-	{"0x[0-9a-fA-F]+", HEX_NUM},	//
+	{"0[x|X][0-9a-fA-F]+", HEX_NUM},	//
 	{"[0-9]+", DEC_NUM},			// number
 	{"\\$[a-z]+", REG},				// REG
 };
@@ -118,13 +119,30 @@ static bool make_token(char *e) {
 						nr_token++;
 						break;
 					case '-':
-						tokens[nr_token].type = '-';
+						if(nr_token == 0 || tokens[nr_token-1].type == '+'
+							|| tokens[nr_token-1].type == '-'
+							|| tokens[nr_token-1].type == '*'
+							|| tokens[nr_token-1].type == '/'
+							|| tokens[nr_token-1].type == '(') {
+								tokens[nr_token].type = NEG;
+							}
+						else {
+							tokens[nr_token].type = '-';
+						}
 						strcpy(tokens[nr_token].str,
 								substring(substr_start, 0, substr_len));
 						nr_token++;
 						break;
 					case '*':
-						tokens[nr_token].type = '*';
+						if(nr_token == 0 || tokens[nr_token-1].type == '+'
+							|| tokens[nr_token-1].type == '-'
+							|| tokens[nr_token-1].type == '*'
+							|| tokens[nr_token-1].type == '/') {
+								tokens[nr_token].type = DEREF;
+							}
+						else {
+							tokens[nr_token].type = '*';
+						}
 						strcpy(tokens[nr_token].str,
 								substring(substr_start, 0, substr_len));
 						nr_token++;
@@ -238,21 +256,40 @@ uint32_t eval(int p, int q) {
 		}
 	}
 	else if(check_parentness(p, q) == true) {
-		/* the expression is surrounded by a matched pair of parentheses.
+		/* T
+		 * The expression is surrounded by a matched pair of parentheses.
 		 * If that is the case, just throw away the parentheses.
 		 */
 		return eval(p + 1, q - 1);
 	}
 	else {
-		int i = p;
-		int j = 0;
-		int op = -1;
-		int flag = 0;
+		int i;
+        int j;
+        int op = -1;
+        int flag = 0;		//操作符优先级标志
+
 		uint32_t val1;
 		uint32_t val2;
 
-		for(j = 0; i <= q; i++) {
-			if(j == 0
+		if(tokens[p].type == NEG) {
+			if(check_parentness(p + 1, q) || p + 1 == q) {
+				return -1 * eval(p + 1, q);
+			}
+		}
+		if(tokens[p].type == DEREF) {
+			if(check_parentness(p + 1, q) || p + 1 == q) {
+				return instr_fetch(eval(p + 1, q), 1);
+			}
+		}
+		for(i = p, j = 0; i <= q; i++) {
+			//操作符优先级
+			if(tokens[i].type == '(' ) {
+				j++;
+			}
+            else if(tokens[i].type == ')') {
+				j--;
+			}
+			else if(j == 0
 				&& (tokens[i].type == '+' || tokens[i].type == '-')) {
 				if(flag < 2) {
 					op = i;
@@ -264,7 +301,7 @@ uint32_t eval(int p, int q) {
 				if(op == -1) {
 					op = i;
 				}
-				if( flag < 1) {
+				if(flag < 1) {
 					op = i;
 					flag = 1;
 				}
@@ -286,7 +323,7 @@ uint32_t eval(int p, int q) {
 			case '/':
 				return val1 / val2;
 				break;
-				default: assert(0);
+			default: assert(0);
 		}
 	}
 
@@ -375,12 +412,7 @@ uint32_t expr(char *e, bool *success) {
 	}
 	*success = true;
 	/* TODO: Insert codes to evaluate the expression. */
-	for(i = 0; i < nr_token; i++) {
-		if(tokens[i].type == '*' && (i == 0 || tokens[i-1].type != DEC_NUM)) {
-			//tokens[i].type == DEREF;
-			;
-		}
-	}
+
 	for(i = 0; i < nr_token; i++) {
 		printf("tokens[%d]: type: %d : %s\n", i, tokens[i].type ,tokens[i].str);
 	}
