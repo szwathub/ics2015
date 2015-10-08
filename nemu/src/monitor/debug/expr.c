@@ -16,7 +16,8 @@ uint32_t hextodec(char *str);
 enum {
 	NOTYPE = 256, EQ, NEQ, LEQ, GEQ, L, G,
 	HEX_NUM, DEC_NUM, REG,
-	DEREF, NEG
+	DEREF, NEG,
+	AND, OR
 
 	/* TODO: Add more token types */
 
@@ -32,13 +33,16 @@ static struct rule {
 	 */
 
 	{" +",	NOTYPE},				// spaces
-	{"\\+", '+'},					// plus
 	{"!=", NEQ},					// not equal
 	{"==", EQ},						// equal
 	{"<=", LEQ},					// less than or equal
 	{">=", GEQ},					// great than or equal
 	{"<", L},						// less than
 	{">", G},						// great than
+	{"!", '!'},						// not
+	{"\\&\\&", AND},				// &&
+	{"\\|\\|", OR},					// or
+	{"\\+", '+'},					// plus
 	{"-", '-'},						// sub
 	{"\\*", '*'},					// mul
 	{"/", '/'},						// div
@@ -95,9 +99,9 @@ static bool make_token(char *e) {
 				int substr_len = pmatch.rm_eo;
 
 
-				//Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
-				//	i, rules[i].regex, position, substr_len,
-				//	substr_len, substr_start);
+				Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
+					i, rules[i].regex, position, substr_len,
+					substr_len, substr_start);
 
 				position += substr_len;
 
@@ -126,11 +130,11 @@ static bool make_token(char *e) {
 						nr_token++;
 						break;
 					case '-':
-						if(nr_token == 0 || tokens[nr_token-1].type == '+'
-							|| tokens[nr_token-1].type == '-'
-							|| tokens[nr_token-1].type == '*'
-							|| tokens[nr_token-1].type == '/'
-							|| tokens[nr_token-1].type == '(') {
+						if(nr_token == 0 || tokens[nr_token - 1].type == '+'
+							|| tokens[nr_token - 1].type == '-'
+							|| tokens[nr_token - 1].type == '*'
+							|| tokens[nr_token - 1].type == '/'
+							|| tokens[nr_token - 1].type == '(') {
 								tokens[nr_token].type = NEG;
 							}
 						else {
@@ -141,10 +145,10 @@ static bool make_token(char *e) {
 						nr_token++;
 						break;
 					case '*':
-						if(nr_token == 0 || tokens[nr_token-1].type == '+'
-							|| tokens[nr_token-1].type == '-'
-							|| tokens[nr_token-1].type == '*'
-							|| tokens[nr_token-1].type == '/') {
+						if(nr_token == 0 || tokens[nr_token - 1].type == '+'
+							|| tokens[nr_token - 1].type == '-'
+							|| tokens[nr_token - 1].type == '*'
+							|| tokens[nr_token - 1].type == '/') {
 								tokens[nr_token].type = DEREF;
 							}
 						else {
@@ -210,6 +214,24 @@ static bool make_token(char *e) {
 						break;
 					case G:
 						tokens[nr_token].type = G;
+						strcpy(tokens[nr_token].str,
+								substring(substr_start, 0, substr_len));
+						nr_token++;
+						break;
+					case '!':
+						tokens[nr_token].type = '!';
+						strcpy(tokens[nr_token].str,
+								substring(substr_start, 0, substr_len));
+						nr_token++;
+						break;
+					case AND:
+						tokens[nr_token].type = AND;
+						strcpy(tokens[nr_token].str,
+								substring(substr_start, 0, substr_len));
+						nr_token++;
+						break;
+					case OR:
+						tokens[nr_token].type = OR;
 						strcpy(tokens[nr_token].str,
 								substring(substr_start, 0, substr_len));
 						nr_token++;
@@ -299,7 +321,7 @@ uint32_t eval(int p, int q) {
 		}
 	}
 	else if(check_parentness(p, q) == true) {
-		/* T
+		/*
 		 * The expression is surrounded by a matched pair of parentheses.
 		 * If that is the case, just throw away the parentheses.
 		 */
@@ -307,9 +329,9 @@ uint32_t eval(int p, int q) {
 	}
 	else {
 		int i;
-        int j;
-        int op = -1;
-        int flag = 0;		//操作符优先级标志
+		int j;
+		int op = -1;
+		int flag = 0;		//操作符优先级标志
 
 		uint32_t val1;
 		uint32_t val2;
@@ -319,9 +341,14 @@ uint32_t eval(int p, int q) {
 				return -1 * eval(p + 1, q);
 			}
 		}
-		if(tokens[p].type == DEREF) {
+		else if(tokens[p].type == DEREF) {
 			if(check_parentness(p + 1, q) || p + 1 == q) {
 				return instr_fetch(eval(p + 1, q), 1);
+			}
+		}
+		else if(tokens[p].type == '!') {
+			if(check_parentness(p + 1, q) || p + 1 == q) {
+				return !eval(p + 1, q);
 			}
 		}
 		for(i = p, j = 0; i <= q; i++) {
@@ -329,18 +356,25 @@ uint32_t eval(int p, int q) {
 			if(tokens[i].type == '(' ) {
 				j++;
 			}
-            else if(tokens[i].type == ')') {
+			else if(tokens[i].type == ')') {
 				j--;
 			}
 			else if(j == 0
 				&& (tokens[i].type == EQ || tokens[i].type == NEQ
 					|| tokens[i].type == LEQ || tokens[i].type == GEQ
 					|| tokens[i].type == L || tokens[i].type == G)) {
-            	if(flag < 4) {
-                	flag = 4;
-                	op = i;
-                }
-            }
+				if(flag < 4) {
+					flag = 4;
+					op = i;
+				}
+			}
+			else if(j == 0
+				&& (tokens[i].type == AND || tokens[i].type == OR)) {
+				if(flag < 3) {
+					op = i;
+					flag = 3;
+				}
+			}
 			else if(j == 0
 				&& (tokens[i].type == '+' || tokens[i].type == '-')) {
 				if(flag < 2) {
@@ -393,7 +427,12 @@ uint32_t eval(int p, int q) {
 			case G:
 				return val1 > val2 ? 1 : 0;
 				break;
-
+			case AND:
+				return val1 && val2;
+				break;
+			case OR:
+				return val1 || val2;
+				break;
 			default: assert(0);
 		}
 	}
@@ -476,17 +515,12 @@ uint32_t hextodec(char *str) {
 }
 
 uint32_t expr(char *e, bool *success) {
-    int i;
 	if(!make_token(e)) {
 		*success = false;
 		return 0;
 	}
 	*success = true;
 	/* TODO: Insert codes to evaluate the expression. */
-
-	for(i = 0; i < nr_token; i++) {
-		printf("tokens[%d]: type: %d : %s\n", i, tokens[i].type ,tokens[i].str);
-	}
 	return eval(0, nr_token - 1);
 	//panic("please implement me");
 }
