@@ -4,6 +4,7 @@
  * Type 'man regex' for more information about POSIX regex functions.
  */
 #include <sys/types.h>
+#include "cpu/helper.h"
 #include <regex.h>
 #include <stdlib.h>
 
@@ -13,7 +14,10 @@ bool check_parentness(int p, int q);
 uint32_t hextodec(char *str);
 
 enum {
-	NOTYPE = 256, EQ, HEX_NUM, DEC_NUM, REG
+	NOTYPE = 256, EQ, NEQ, LEQ, GEQ, L, G,
+	HEX_NUM, DEC_NUM, REG,
+	DEREF, NEG,
+	AND, OR
 
 	/* TODO: Add more token types */
 
@@ -29,14 +33,22 @@ static struct rule {
 	 */
 
 	{" +",	NOTYPE},				// spaces
-	{"\\+", '+'},					// plus
+	{"!=", NEQ},					// not equal
 	{"==", EQ},						// equal
+	{"<=", LEQ},					// less than or equal
+	{">=", GEQ},					// great than or equal
+	{"<", L},						// less than
+	{">", G},						// great than
+	{"!", '!'},						// not
+	{"\\&\\&", AND},				// &&
+	{"\\|\\|", OR},					// or
+	{"\\+", '+'},					// plus
 	{"-", '-'},						// sub
 	{"\\*", '*'},					// mul
 	{"/", '/'},						// div
 	{"\\(", '('},
 	{"\\)", ')'},
-	{"0x[0-9a-fA-F]+", HEX_NUM},	//
+	{"0[x|X][0-9a-fA-F]+", HEX_NUM},	//
 	{"[0-9]+", DEC_NUM},			// number
 	{"\\$[a-z]+", REG},				// REG
 };
@@ -87,9 +99,9 @@ static bool make_token(char *e) {
 				int substr_len = pmatch.rm_eo;
 
 
-				//Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
-				//	i, rules[i].regex, position, substr_len,
-				//	substr_len, substr_start);
+				Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
+					i, rules[i].regex, position, substr_len,
+					substr_len, substr_start);
 
 				position += substr_len;
 
@@ -118,13 +130,30 @@ static bool make_token(char *e) {
 						nr_token++;
 						break;
 					case '-':
-						tokens[nr_token].type = '-';
+						if(nr_token == 0 || tokens[nr_token - 1].type == '+'
+							|| tokens[nr_token - 1].type == '-'
+							|| tokens[nr_token - 1].type == '*'
+							|| tokens[nr_token - 1].type == '/'
+							|| tokens[nr_token - 1].type == '(') {
+								tokens[nr_token].type = NEG;
+							}
+						else {
+							tokens[nr_token].type = '-';
+						}
 						strcpy(tokens[nr_token].str,
 								substring(substr_start, 0, substr_len));
 						nr_token++;
 						break;
 					case '*':
-						tokens[nr_token].type = '*';
+						if(nr_token == 0 || tokens[nr_token - 1].type == '+'
+							|| tokens[nr_token - 1].type == '-'
+							|| tokens[nr_token - 1].type == '*'
+							|| tokens[nr_token - 1].type == '/') {
+								tokens[nr_token].type = DEREF;
+							}
+						else {
+							tokens[nr_token].type = '*';
+						}
 						strcpy(tokens[nr_token].str,
 								substring(substr_start, 0, substr_len));
 						nr_token++;
@@ -149,6 +178,60 @@ static bool make_token(char *e) {
 						break;
 					case REG:
 						tokens[nr_token].type = REG;
+						strcpy(tokens[nr_token].str,
+								substring(substr_start, 0, substr_len));
+						nr_token++;
+						break;
+					case EQ:
+						tokens[nr_token].type = EQ;
+						strcpy(tokens[nr_token].str,
+								substring(substr_start, 0, substr_len));
+						nr_token++;
+						break;
+					case NEQ:
+						tokens[nr_token].type = NEQ;
+						strcpy(tokens[nr_token].str,
+								substring(substr_start, 0, substr_len));
+						nr_token++;
+						break;
+					case LEQ:
+						tokens[nr_token].type = LEQ;
+						strcpy(tokens[nr_token].str,
+								substring(substr_start, 0, substr_len));
+						nr_token++;
+						break;
+					case GEQ:
+						tokens[nr_token].type = GEQ;
+						strcpy(tokens[nr_token].str,
+								substring(substr_start, 0, substr_len));
+						nr_token++;
+						break;
+					case L:
+						tokens[nr_token].type = L;
+						strcpy(tokens[nr_token].str,
+								substring(substr_start, 0, substr_len));
+						nr_token++;
+						break;
+					case G:
+						tokens[nr_token].type = G;
+						strcpy(tokens[nr_token].str,
+								substring(substr_start, 0, substr_len));
+						nr_token++;
+						break;
+					case '!':
+						tokens[nr_token].type = '!';
+						strcpy(tokens[nr_token].str,
+								substring(substr_start, 0, substr_len));
+						nr_token++;
+						break;
+					case AND:
+						tokens[nr_token].type = AND;
+						strcpy(tokens[nr_token].str,
+								substring(substr_start, 0, substr_len));
+						nr_token++;
+						break;
+					case OR:
+						tokens[nr_token].type = OR;
 						strcpy(tokens[nr_token].str,
 								substring(substr_start, 0, substr_len));
 						nr_token++;
@@ -238,21 +321,61 @@ uint32_t eval(int p, int q) {
 		}
 	}
 	else if(check_parentness(p, q) == true) {
-		/* the expression is surrounded by a matched pair of parentheses.
+		/*
+		 * The expression is surrounded by a matched pair of parentheses.
 		 * If that is the case, just throw away the parentheses.
 		 */
 		return eval(p + 1, q - 1);
 	}
 	else {
-		int i = p;
-		int j = 0;
+		int i;
+		int j;
 		int op = -1;
-		int flag = 0;
+		int flag = 0;		//操作符优先级标志
+
 		uint32_t val1;
 		uint32_t val2;
 
-		for(j = 0; i <= q; i++) {
-			if(j == 0
+		if(tokens[p].type == NEG) {
+			if(check_parentness(p + 1, q) || p + 1 == q) {
+				return -1 * eval(p + 1, q);
+			}
+		}
+		else if(tokens[p].type == DEREF) {
+			if(check_parentness(p + 1, q) || p + 1 == q) {
+				return instr_fetch(eval(p + 1, q), 1);
+			}
+		}
+		else if(tokens[p].type == '!') {
+			if(check_parentness(p + 1, q) || p + 1 == q) {
+				return !eval(p + 1, q);
+			}
+		}
+		for(i = p, j = 0; i <= q; i++) {
+			//操作符优先级
+			if(tokens[i].type == '(' ) {
+				j++;
+			}
+			else if(tokens[i].type == ')') {
+				j--;
+			}
+			else if(j == 0
+				&& (tokens[i].type == EQ || tokens[i].type == NEQ
+					|| tokens[i].type == LEQ || tokens[i].type == GEQ
+					|| tokens[i].type == L || tokens[i].type == G)) {
+				if(flag < 4) {
+					flag = 4;
+					op = i;
+				}
+			}
+			else if(j == 0
+				&& (tokens[i].type == AND || tokens[i].type == OR)) {
+				if(flag < 3) {
+					op = i;
+					flag = 3;
+				}
+			}
+			else if(j == 0
 				&& (tokens[i].type == '+' || tokens[i].type == '-')) {
 				if(flag < 2) {
 					op = i;
@@ -264,7 +387,7 @@ uint32_t eval(int p, int q) {
 				if(op == -1) {
 					op = i;
 				}
-				if( flag < 1) {
+				if(flag < 1) {
 					op = i;
 					flag = 1;
 				}
@@ -286,7 +409,31 @@ uint32_t eval(int p, int q) {
 			case '/':
 				return val1 / val2;
 				break;
-				default: assert(0);
+			case EQ:
+				return val1 == val2 ? 1 : 0;
+				break;
+			case NEQ:
+				return val1 != val2 ? 1 : 0;
+				break;
+			case LEQ:
+				return val1 <= val2 ? 1 : 0;
+				break;
+			case GEQ:
+				return val1 >= val2 ? 1 : 0;
+				break;
+			case L:
+				return val1 < val2 ? 1 : 0;
+				break;
+			case G:
+				return val1 > val2 ? 1 : 0;
+				break;
+			case AND:
+				return val1 && val2;
+				break;
+			case OR:
+				return val1 || val2;
+				break;
+			default: assert(0);
 		}
 	}
 
@@ -368,22 +515,12 @@ uint32_t hextodec(char *str) {
 }
 
 uint32_t expr(char *e, bool *success) {
-    int i;
 	if(!make_token(e)) {
 		*success = false;
 		return 0;
 	}
 	*success = true;
 	/* TODO: Insert codes to evaluate the expression. */
-	for(i = 0; i < nr_token; i++) {
-		if(tokens[i].type == '*' && (i == 0 || tokens[i-1].type != DEC_NUM)) {
-			//tokens[i].type == DEREF;
-			;
-		}
-	}
-	for(i = 0; i < nr_token; i++) {
-		printf("tokens[%d]: type: %d : %s\n", i, tokens[i].type ,tokens[i].str);
-	}
 	return eval(0, nr_token - 1);
 	//panic("please implement me");
 }
