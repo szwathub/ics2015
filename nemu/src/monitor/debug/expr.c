@@ -407,6 +407,10 @@ uint32_t eval(int p, int q) {
 				return val1 * val2;
 				break;
 			case '/':
+				if(val2 == 0) {
+					printf("Error\n");
+					break;
+				}
 				return val1 / val2;
 				break;
 			case EQ:
