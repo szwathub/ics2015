@@ -130,11 +130,9 @@ static bool make_token(char *e) {
 						nr_token++;
 						break;
 					case '-':
-						if(nr_token == 0 || tokens[nr_token - 1].type == '+'
-							|| tokens[nr_token - 1].type == '-'
-							|| tokens[nr_token - 1].type == '*'
-							|| tokens[nr_token - 1].type == '/'
-							|| tokens[nr_token - 1].type == '(') {
+						if(nr_token == 0 || (tokens[nr_token - 1].type != REG
+							&& tokens[nr_token - 1].type != HEX_NUM
+							&& tokens[nr_token - 1].type != DEC_NUM)) {
 								tokens[nr_token].type = NEG;
 							}
 						else {
@@ -145,10 +143,9 @@ static bool make_token(char *e) {
 						nr_token++;
 						break;
 					case '*':
-						if(nr_token == 0 || tokens[nr_token - 1].type == '+'
-							|| tokens[nr_token - 1].type == '-'
-							|| tokens[nr_token - 1].type == '*'
-							|| tokens[nr_token - 1].type == '/') {
+						if(nr_token == 0 || (tokens[nr_token - 1].type != REG
+							&& tokens[nr_token - 1].type != HEX_NUM
+							&& tokens[nr_token - 1].type != DEC_NUM)) {
 								tokens[nr_token].type = DEREF;
 							}
 						else {
@@ -384,9 +381,6 @@ uint32_t eval(int p, int q) {
 			}
 			else if(j == 0
 				&& (tokens[i].type == '*' || tokens[i].type == '/')) {
-				if(op == -1) {
-					op = i;
-				}
 				if(flag < 1) {
 					op = i;
 					flag = 1;
