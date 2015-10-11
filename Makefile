@@ -72,4 +72,4 @@ submit: clean
 	cd .. && tar cvj $(shell pwd | grep -o '[^/]*$$') > $(STU_ID).tar.bz2
 
 count:
-	bash count.sh
+	@bash count.sh
