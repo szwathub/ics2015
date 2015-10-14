@@ -109,7 +109,7 @@ static int cmd_info(char *args) {
 	return 0;
 }
 
-/* TODO
+/**
  * @describe
  * @param {string} args
  */
@@ -123,7 +123,7 @@ static int cmd_p(char *args) {
 	return 0;
 }
 
-/* TODOr
+/**
  * @describe Scan memory
  * @param {string} args
  */
@@ -215,7 +215,7 @@ static struct {
 	{ "d", "Delete a watchpoint", cmd_delete},
 	{ "bt", "Print ", cmd_bt}
 
-	/* TODO: Add more commands */
+	/* Add more commands */
 
 };
 

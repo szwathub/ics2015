@@ -19,7 +19,7 @@ enum {
 	DEREF, NEG,
 	AND, OR
 
-	/* TODO: Add more token types */
+	/* Add more token types */
 
 };
 
@@ -28,7 +28,8 @@ static struct rule {
 	int token_type;
 } rules[] = {
 
-	/* TODO: Add more rules.
+	/**
+	 * Add more rules.
 	 * Pay attention to the precedence level of different rules.
 	 */
 
@@ -105,7 +106,8 @@ static bool make_token(char *e) {
 
 				position += substr_len;
 
-				/* TODO: Now a new token is recognized with rules[i]. Add codes
+				/**
+				 * Now a new token is recognized with rules[i]. Add codes
 				 * to record the token in the array ``tokens''. For certain
 				 * types of tokens, some extra actions should be performed.
 				 */
@@ -518,7 +520,7 @@ uint32_t expr(char *e, bool *success) {
 		return 0;
 	}
 	*success = true;
-	/* TODO: Insert codes to evaluate the expression. */
+	/* Insert codes to evaluate the expression. */
 	return eval(0, nr_token - 1);
 	//panic("please implement me");
 }
