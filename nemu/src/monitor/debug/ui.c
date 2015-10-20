@@ -10,7 +10,6 @@
 
 void cpu_exec(uint32_t);
 void print_bin_instr(swaddr_t eip, int len);
-void ptest(swaddr_t eip_temp,int instr_len,int n_temp);
 
 /* We use the ``readline'' library to provide more flexibility to read from stdin. */
 char* rl_gets() {
@@ -67,7 +66,6 @@ static int cmd_si(char *args) {
  * @param {string} args
  */
 static int cmd_info(char *args) {
-	WP *wp = get_wp_head();
 	int i = 0;
 	if(args == NULL) {
 		printf("The most commonly used info commands are:\n\n");
@@ -86,17 +84,7 @@ static int cmd_info(char *args) {
 		}
 	}
 	else if(strcmp(args, "w") == 0) {
-		if(wp->NO < 0) {
-			return -1;
-		}
-		else {
-			for(i = 0; i < wp->NO; i++) {
-				if(wp->exist == 1) {
-					printf("%d/t%d\n",wp->NO,wp->watchpointadd);
-				}
-				wp = wp->next;
-			}
-		}
+		show_all_wp();
 	}
 	else if(strcmp(args, "--help") == 0) {
 		printf("The most commonly used info commands are:\n\n");
@@ -159,11 +147,12 @@ static int cmd_scan(char *args) {
 	return 0;
 }
 
-/* TODO:
+/* TODO: Implement set watchpoint
  * @describe Set a watchpoint
  * @param {string} args
  */
 static int cmd_w(char *args) {
+	add_wp(args);
 	return 0;
 }
 
@@ -172,23 +161,11 @@ static int cmd_w(char *args) {
  * @param {string} args
  */
 static int cmd_delete(char *args) {
-	WP *wp = get_wp_head();
-	int i;
-	for(i = 0; i < 32; i++) {
-		if(atoi(args) >= 32) {
-			printf("Error!\n");
-			return 0;
-		}
-		else if(atoi(args) == wp->NO) {
-			wp->exist = 0;
-			return 0;
-		}
-		else {
-			printf("NO.%d watchpoint not found!\n", atoi(args));
-			return 0;
-		}
-		wp = wp->next;
+	if(atoi(args) >= 32) {
+		printf("Error!\n");
+		return 0;
 	}
+	del_wp(atoi(args));
 	return 0;
 }
 
@@ -245,6 +222,7 @@ static int cmd_help(char *args) {
 }
 
 void ui_mainloop() {
+	init_wp_list();
 	while(1) {
 		char *str = rl_gets();
 		char *str_end = str + strlen(str);
