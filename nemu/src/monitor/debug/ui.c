@@ -10,7 +10,6 @@
 
 void cpu_exec(uint32_t);
 void print_bin_instr(swaddr_t eip, int len);
-void ptest(swaddr_t eip_temp,int instr_len,int n_temp);
 
 /* We use the ``readline'' library to provide more flexibility to read from stdin. */
 char* rl_gets() {
@@ -67,7 +66,6 @@ static int cmd_si(char *args) {
  * @param {string} args
  */
 static int cmd_info(char *args) {
-	WP *wp = get_wp_head();
 	int i = 0;
 	if(args == NULL) {
 		printf("The most commonly used info commands are:\n\n");
@@ -86,17 +84,7 @@ static int cmd_info(char *args) {
 		}
 	}
 	else if(strcmp(args, "w") == 0) {
-		if(wp->NO < 0) {
-			return -1;
-		}
-		else {
-			for(i = 0; i < wp->NO; i++) {
-				if(wp->exist == 1) {
-					printf("%d/t%d\n",wp->NO,wp->watchpointadd);
-				}
-				wp = wp->next;
-			}
-		}
+		show_all_wp();
 	}
 	else if(strcmp(args, "--help") == 0) {
 		printf("The most commonly used info commands are:\n\n");
@@ -164,21 +152,7 @@ static int cmd_scan(char *args) {
  * @param {string} args
  */
 static int cmd_w(char *args) {
-    WP *wp = get_wp_head();
-	if(wp->total >= 32) {
-		printf("Error\n");
-	}
-    for(; wp->next != NULL; wp = wp->next) {
-        if(wp->exist == 0) {
-			//wp->watchpointaddr = calculate(args,strlen(args));
-            //wp->data = swaddr_read(wp->watchpointaddr,NULL);
-            wp->exist = 1;
-			wp->total = wp->total + 1;
-            printf("The watchpoint is set.\n");
-			printf("%d\n", wp->total);
-			return 0;
-        }
-    }
+	add_wp(args);
 	return 0;
 }
 
@@ -187,46 +161,11 @@ static int cmd_w(char *args) {
  * @param {string} args
  */
 static int cmd_delete(char *args) {
-	WP *wp = get_wp_head();
 	if(atoi(args) >= 32) {
 		printf("Error!\n");
 		return 0;
 	}
-	for(; wp->next != NULL; wp = wp->next) {
-		if(atoi(args) == wp->NO && wp->exist != 0) {
-			wp->exist = 0;
-			wp->total--;
-			printf("No.%d watchpoint has been deleted\n", atoi(args));
-			return 0;
-		}
-	}
-
-	printf("NO.%d watchpoint not found!\n", atoi(args));
-
-	return 0;
-}
-
-/* TODO
- * @describe print the information of all or single watchpoint
- * @param {strinh} args
- */
-static int cmd_i(char *args) {
-	WP *wp = get_wp_head();
-	if(args == NULL) {
-		for(; wp->next != NULL; wp = wp->next) {
-			if(wp->exist != 0) {
-				printf("No.%d watchpoint: information\n", wp->NO);
-			}
-		}
-	}
-	else {
-		for(; wp->next != NULL; wp = wp->next) {
-			if(atoi(args) == wp->NO) {
-				printf("Some information\n");
-			}
-		}
-	}
-
+	del_wp(atoi(args));
 	return 0;
 }
 
@@ -251,7 +190,6 @@ static struct {
 	{ "x", "Scan memory", cmd_scan},
 	{ "w", "Set a watchpoint", cmd_w},
 	{ "d", "Delete a watchpoint", cmd_delete},
-	{ "i", "Print the information of watchpoint", cmd_i},
 	{ "bt", "Print ", cmd_bt}
 
 	/* TODO: Add more commands */
