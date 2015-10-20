@@ -73,14 +73,35 @@ static int cmd_info(char *args) {
 		printf("w\t\tprint information of watchpoint\n");
 	}
 	else if(strcmp(args, "r") == 0) {
+		printf("+------+--------------------------------");
+		printf("+------+--------------------------------");
+		printf("+------+-------------------------------+\n");
+
+		printf("| Reg  |             Value              ");
+		printf("|  Reg |             Value              ");
+		printf("|  Reg |             Value             |\n");
+
+		printf("+------+---------------+----------------");
+		printf("+------+---------------+----------------");
+		printf("+------+---------------+---------------+\n");
+
+		printf("|      |      HEC      |      DEC       ");
+		printf("|      |      HEC      |      DEC       ");
+		printf("|      |      HEC      |      DEC      |\n");
+
+		printf("+------+---------------+----------------");
+		printf("+------+---------------+----------------");
+		printf("+------+---------------+---------------+\n");
 		for(i = 0; i < 8; i++) {
-			printf("%s\t\t 0x%x\t%u\n", regsl[i], cpu.gpr[i]._32, cpu.gpr[i]._32);
-		}
-		for(i = 0; i < 8; i++) {
-			printf("%s\t\t 0x%x\t%u\n", regsw[i], cpu.gpr[i]._16, cpu.gpr[i]._16);
-		}
-		for(i = 0; i < 8; i++) {
-			//printf("%s\t\t 0x%x\t%u\n", regsb[i], cpu.gpr[i]._8, cpu.gpr[i]._8);
+			printf("| %-5s|   0x%-10x|   %-13u",
+					regsl[i], cpu.gpr[i]._32, cpu.gpr[i]._32);
+			printf("|  %-4s|    0x%-9x|     %-11u",
+					regsw[i], cpu.gpr[i]._16, cpu.gpr[i]._16);
+			printf("|  %-4s|     0x%-8x|      %-9u|\n",
+					regsb[i], cpu.gpr[i]._8[0], cpu.gpr[i]._8[0]);
+			printf("+------+---------------+----------------");
+			printf("+------+---------------+----------------");
+			printf("+------+---------------+---------------+\n");
 		}
 	}
 	else if(strcmp(args, "w") == 0) {
