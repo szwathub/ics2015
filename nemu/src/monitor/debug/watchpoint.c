@@ -3,6 +3,22 @@
 #include <stdlib.h>
 
 #define NR_WP 32
+#define NONE         "\033[m"
+#define RED          "\033[0;32;31m"
+#define LIGHT_RED    "\033[1;31m"
+#define GREEN        "\033[0;32;32m"
+#define LIGHT_GREEN  "\033[1;32m"
+#define BLUE         "\033[0;32;34m"
+#define LIGHT_BLUE   "\033[1;34m"
+#define DARY_GRAY    "\033[1;30m"
+#define CYAN         "\033[0;36m"
+#define LIGHT_CYAN   "\033[1;36m"
+#define PURPLE       "\033[0;35m"
+#define LIGHT_PURPLE "\033[1;35m"
+#define BROWN        "\033[0;33m"
+#define YELLOW       "\033[1;33m"
+#define LIGHT_GRAY   "\033[0;37m"
+#define WHITE        "\033[1;37m"
 
 static WP wp_list[NR_WP];
 static WP *head, *head_, *free_;
@@ -85,17 +101,29 @@ int show_all_wp() {
 	if(head_ == NULL) {
 		return 0;
 	}
-	printf("+----+----------------------------------------------------------+");
-	printf("---------------+\n");
-	printf("| NO |\t\t\t\tExpr\t\t\t\t|\tVuale\t|\n");
-	printf("+----+----------------------------------------------------------+");
-	printf("---------------+\n");
+	printf(GREEN"+----+----------------------------------------------------------+"NONE);
+	printf(GREEN"-----------------------+\n"NONE);
+	printf(GREEN"|"NONE \
+			LIGHT_RED" NO "NONE \
+			GREEN"|"NONE \
+			LIGHT_RED"\t\t\t\tExpr\t\t\t\t"NONE \
+			GREEN"|"NONE \
+			LIGHT_RED"\tVuale\t\t"NONE \
+			GREEN"|\n"NONE);
+	printf(GREEN"+----+----------------------------------------------------------+"NONE);
+	printf(GREEN"-----------------------+\n"NONE);
 	do{
 		if(wp->expr != NULL) {
-			printf("| %-3d|  %-56s|\t%d\t|\n",
+			printf(GREEN"|"NONE \
+					LIGHT_CYAN" %-3d"NONE \
+					GREEN"|"NONE \
+					LIGHT_PURPLE"  %-56s"NONE \
+					GREEN"|"NONE \
+					LIGHT_PURPLE"\t%-16d"NONE \
+					GREEN"|\n"NONE,
 					wp->NO, wp->expr, wp->value);
-			printf("+----+--------------------------------------------------");
-			printf("--------+---------------+\n");
+			printf(GREEN"+----+----------------------------------------------------------+"NONE);
+			printf(GREEN"-----------------------+\n"NONE);
 		}
 		wp = wp->next;
 	}while(wp != NULL);
