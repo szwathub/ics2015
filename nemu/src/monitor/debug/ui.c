@@ -7,6 +7,22 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "cpu/helper.h"
+#define NONE         "\033[m"
+#define RED          "\033[0;32;31m"
+#define LIGHT_RED    "\033[1;31m"
+#define GREEN        "\033[0;32;32m"
+#define LIGHT_GREEN  "\033[1;32m"
+#define BLUE         "\033[0;32;34m"
+#define LIGHT_BLUE   "\033[1;34m"
+#define DARY_GRAY    "\033[1;30m"
+#define CYAN         "\033[0;36m"
+#define LIGHT_CYAN   "\033[1;36m"
+#define PURPLE       "\033[0;35m"
+#define LIGHT_PURPLE "\033[1;35m"
+#define BROWN        "\033[0;33m"
+#define YELLOW       "\033[1;33m"
+#define LIGHT_GRAY   "\033[0;37m"
+#define WHITE        "\033[1;37m"
 
 void cpu_exec(uint32_t);
 void print_bin_instr(swaddr_t eip, int len);
@@ -73,35 +89,73 @@ static int cmd_info(char *args) {
 		printf("w\t\tprint information of watchpoint\n");
 	}
 	else if(strcmp(args, "r") == 0) {
-		printf("+------+--------------------------------");
-		printf("+------+--------------------------------");
-		printf("+------+-------------------------------+\n");
+		printf(GREEN"+------+--------------------------------"NONE);
+		printf(GREEN"+------+--------------------------------"NONE);
+		printf(GREEN"+------+-------------------------------+\n"NONE);
 
-		printf("| Reg  |             Value              ");
-		printf("|  Reg |             Value              ");
-		printf("|  Reg |             Value             |\n");
+		printf(GREEN"|"NONE \
+				LIGHT_RED" Reg  "NONE \
+				GREEN"|"NONE \
+				LIGHT_RED"             Value              "NONE);
+		printf(GREEN"|"NONE \
+				LIGHT_RED"  Reg "NONE \
+				GREEN"|"NONE \
+				LIGHT_RED"             Value              "NONE);
+		printf(GREEN"|"NONE \
+				LIGHT_RED"  Reg "NONE \
+				GREEN"|"NONE \
+				LIGHT_RED"             Value             "NONE \
+				GREEN"|"NONE);
+		printf("\n");
 
-		printf("+------+---------------+----------------");
-		printf("+------+---------------+----------------");
-		printf("+------+---------------+---------------+\n");
+		printf(GREEN"+------+--------------------------------"NONE);
+		printf(GREEN"+------+--------------------------------"NONE);
+		printf(GREEN"+------+-------------------------------+\n"NONE);
 
-		printf("|      |      HEC      |      DEC       ");
-		printf("|      |      HEC      |      DEC       ");
-		printf("|      |      HEC      |      DEC      |\n");
+		printf(GREEN"|      |      "NONE \
+				LIGHT_BLUE"HEC"NONE \
+				GREEN"      |"NONE
+				LIGHT_BLUE"      DEC       "NONE);
+		printf(GREEN"|      |      "NONE \
+				LIGHT_BLUE"HEC"NONE \
+				GREEN"      |"NONE
+				LIGHT_BLUE"      DEC       "NONE);
+		printf(GREEN"|      |      "NONE \
+				LIGHT_BLUE"HEC"NONE \
+				GREEN"      |"NONE
+				LIGHT_BLUE"      DEC      "NONE
+				GREEN"|"NONE);
+		printf("\n");
 
-		printf("+------+---------------+----------------");
-		printf("+------+---------------+----------------");
-		printf("+------+---------------+---------------+\n");
+		printf(GREEN"+------+--------------------------------"NONE);
+		printf(GREEN"+------+--------------------------------"NONE);
+		printf(GREEN"+------+-------------------------------+\n"NONE);
 		for(i = 0; i < 8; i++) {
-			printf("| %-5s|   0x%-10x|   %-13u",
+			printf(GREEN"|"NONE \
+					LIGHT_CYAN" %-5s"NONE \
+					GREEN"|"NONE \
+					LIGHT_PURPLE"   0x%-10x"NONE \
+					GREEN"|"NONE \
+					LIGHT_PURPLE"   %-13u"NONE,
 					regsl[i], cpu.gpr[i]._32, cpu.gpr[i]._32);
-			printf("|  %-4s|    0x%-9x|     %-11u",
+			printf(GREEN"|"NONE \
+					LIGHT_CYAN"  %-4s"NONE \
+					GREEN"|"NONE \
+					LIGHT_PURPLE"    0x%-9x"NONE \
+					GREEN"|"NONE \
+					LIGHT_PURPLE"     %-11u"NONE,
 					regsw[i], cpu.gpr[i]._16, cpu.gpr[i]._16);
-			printf("|  %-4s|     0x%-8x|      %-9u|\n",
+			printf(GREEN"|"NONE \
+					LIGHT_CYAN"  %-4s"NONE \
+					GREEN"|"NONE \
+					LIGHT_PURPLE"     0x%-8x"NONE \
+					GREEN"|"NONE \
+					LIGHT_PURPLE"      %-9u"NONE
+					GREEN"|\n"NONE,
 					regsb[i], cpu.gpr[i]._8[0], cpu.gpr[i]._8[0]);
-			printf("+------+---------------+----------------");
-			printf("+------+---------------+----------------");
-			printf("+------+---------------+---------------+\n");
+			printf(GREEN"+------+--------------------------------"NONE);
+			printf(GREEN"+------+--------------------------------"NONE);
+			printf(GREEN"+------+-------------------------------+\n"NONE);
 		}
 	}
 	else if(strcmp(args, "w") == 0) {
@@ -127,8 +181,12 @@ static int cmd_p(char *args) {
 		printf("Simple: p expr\n");
 		return 0;
 	}
-	bool flag;
-	printf("%d\n", expr(args, &flag));
+	bool succ = false;
+	uint32_t result = expr(args, &succ);
+	if(succ) {
+		printf(LIGHT_PURPLE"The Expression: %s \n"NONE, args);
+		printf(LIGHT_PURPLE"The Result: %d\n"NONE, result);
+	}
 	return 0;
 }
 
