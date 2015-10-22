@@ -10,7 +10,7 @@ typedef struct watchpoint {
 	uint32_t value;
 	struct watchpoint *next;
 
-	/* TODO: Add more members if necessary */
+	/* Add more members if necessary */
 } WP;
 
 /**
