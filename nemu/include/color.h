@@ -1,3 +1,5 @@
+#ifndef __COLOR_H__
+#define __COLOR_H__
 
 #define NONE         "\033[m"
 #define RED          "\033[0;32;31m"
@@ -15,3 +17,5 @@
 #define YELLOW       "\033[1;33m"
 #define LIGHT_GRAY   "\033[0;37m"
 #define WHITE        "\033[1;37m"
+
+#endif
