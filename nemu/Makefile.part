@@ -10,7 +10,7 @@ $(nemu_BIN): $(nemu_OBJS)
 
 ##### rules for generating some preprocessing results #####
 
-PP_FILES := $(filter nemu/src/cpu/decode/%.c nemu/src/cpu/exec/%.c, $(nemu_CFILES))
+PP_FILES := $(filter nemu/src/cpu/%.c, $(nemu_CFILES))
 PP_TARGET := $(PP_FILES:.c=.i)
 
 .PHONY: $(PP_TARGET)
