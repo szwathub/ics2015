@@ -130,14 +130,26 @@ static int cmd_info(char *args) {
 					GREEN"|"NONE \
 					LIGHT_PURPLE"     %-11u"NONE,
 					regsw[i], cpu.gpr[i]._16, cpu.gpr[i]._16);
-			printf(GREEN"|"NONE \
-					LIGHT_CYAN"  %-4s"NONE \
-					GREEN"|"NONE \
-					LIGHT_PURPLE"     0x%-8x"NONE \
-					GREEN"|"NONE \
-					LIGHT_PURPLE"      %-9u"NONE
-					GREEN"|\n"NONE,
-					regsb[i], cpu.gpr[i]._8[0], cpu.gpr[i]._8[0]);
+			if(i < 4) {
+				printf(GREEN"|"NONE \
+						LIGHT_CYAN"  %-4s"NONE \
+						GREEN"|"NONE \
+						LIGHT_PURPLE"     0x%-8x"NONE \
+						GREEN"|"NONE \
+						LIGHT_PURPLE"      %-9u"NONE
+						GREEN"|\n"NONE,
+						regsb[i], cpu.gpr[i]._8[0], cpu.gpr[i]._8[0]);
+			}
+			else {
+				printf(GREEN"|"NONE \
+						LIGHT_CYAN"  %-4s"NONE \
+						GREEN"|"NONE \
+						LIGHT_PURPLE"     0x%-8x"NONE \
+						GREEN"|"NONE \
+						LIGHT_PURPLE"      %-9u"NONE
+						GREEN"|\n"NONE,
+						regsb[i], cpu.gpr[i - 4]._8[1], cpu.gpr[i - 4]._8[1]);
+			}
 			printf(GREEN"+------+--------------------------------"NONE);
 			printf(GREEN"+------+--------------------------------"NONE);
 			printf(GREEN"+------+-------------------------------+\n"NONE);
