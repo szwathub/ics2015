@@ -103,6 +103,12 @@ static int cmd_info(char *args) {
 			printf("+------+---------------+----------------");
 			printf("+------+---------------+---------------+\n");
 		}
+		printf("\n+----+----+----+----+----+----+\n");
+		printf("| OF | SF | ZF | AF | PF | CF |\n");
+		printf("+----+----+----+----+----+----+\n");
+		printf("| %-2x | %-2x | %-2x | %-2x | %-2x | %-2x |\n",
+				cpu.OF, cpu.SF, cpu.ZF, cpu.AF, cpu.PF, cpu.CF);
+		printf("+----+----+----+----+----+----+\n");
 	}
 	else if(strcmp(args, "w") == 0) {
 		show_all_wp();
