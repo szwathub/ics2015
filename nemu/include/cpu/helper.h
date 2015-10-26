@@ -19,6 +19,16 @@ static inline int idex(swaddr_t eip, int (*decode)(swaddr_t), void (*execute) (v
 	return len + 1;	// "1" for opcode
 }
 
+static inline bool Check_Parity_Flag(uint8_t src) {
+	bool flag = true;
+	while(src) {
+		if(src&1) {
+			flag = !flag;
+		}
+		src >>= 1;
+	}
+	return flag;
+}
 /* shared by all helper function */
 extern Operands ops_decoded;
 
