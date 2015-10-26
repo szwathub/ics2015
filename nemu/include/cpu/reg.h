@@ -53,9 +53,9 @@ typedef struct {
 			unsigned VIP: 1;	//Virtual Interrupt Pending Flag
 			unsigned ID: 1;		//Identification Flag
 			unsigned RES: 10;	//RES INDICATES INTEL RESERVED. DO NOT DEFINE
-		}
+		};
 		uint32_t EFLAGS;
-	}
+	};
 
 } CPU_state;
 
