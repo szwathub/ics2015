@@ -28,7 +28,9 @@ typedef struct {
 			uint32_t eax, ecx, edx, ebx, esp, ebp, esi, edi;
 		};
 	};
-	swaddr_t eip;
+	struct {
+ 		uint16_t CS, DS, SS, ES, FS, GS;
+ 	};
 	union {
 		struct {
 			unsigned CF: 1;		//Carry Flag
@@ -56,6 +58,7 @@ typedef struct {
 		};
 		uint32_t EFLAGS;
 	};
+	swaddr_t eip;
 
 } CPU_state;
 
