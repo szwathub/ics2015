@@ -16,7 +16,7 @@ enum { R_AL, R_CL, R_DL, R_BL, R_AH, R_CH, R_DH, R_BH };
  */
 
 typedef struct {
-	union{
+	union {
 		union {
 			uint32_t _32;
 			uint16_t _16;
@@ -29,6 +29,33 @@ typedef struct {
 		};
 	};
 	swaddr_t eip;
+	union {
+		struct {
+			unsigned CF: 1;		//Carry Flag
+			unsigned RES1: 1;
+			unsigned PF: 1;		//Parity Flag
+			unsigned RES2: 1;
+			unsigned AF: 1;		//Assistant Flag
+			unsigned RES3: 1;
+			unsigned ZF: 1;		//Zero Flag
+			unsigned SF: 1;		//Singal Flag
+			unsigned TF: 1;		//Trap Flag
+			unsigned IF: 1;		//Interrupt Enable Flag
+			unsigned DF: 1;		//Direction Flag
+			unsigned OF: 1;		//Overflow Flag
+			unsigned IOPL: 2;	//12 13
+			unsigned NT: 1;		//Nested Task Flag
+			unsigned RES4: 1;
+			unsigned RF: 1;		// Resume Flag
+			unsigned VM: 1;		//Virtual-8086 Mode Flag
+			unsigned AC: 1;		//Alignment Check
+			unsigned VIF: 1;	//Virtual Interrupt Flag
+			unsigned VIP: 1;	//Virtual Interrupt Pending Flag
+			unsigned ID: 1;		//Identification Flag
+			unsigned RES: 10;	//RES INDICATES INTEL RESERVED. DO NOT DEFINE
+		};
+		uint32_t EFLAGS;
+	};
 
 } CPU_state;
 
