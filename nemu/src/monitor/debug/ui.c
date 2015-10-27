@@ -154,12 +154,36 @@ static int cmd_info(char *args) {
 			printf(GREEN"+------+--------------------------------"NONE);
 			printf(GREEN"+------+-------------------------------+\n"NONE);
 		}
-		printf("\n+----+----+----+----+----+----+\n");
-		printf("| OF | SF | ZF | AF | PF | CF |\n");
-		printf("+----+----+----+----+----+----+\n");
-		printf("| %-2x | %-2x | %-2x | %-2x | %-2x | %-2x |\n",
+		printf(GREEN"\n+----+----+----+----+----+----+\n"NONE);
+		printf(GREEN"|"NONE \
+				LIGHT_CYAN" OF "NONE \
+				GREEN"|"NONE \
+				LIGHT_CYAN" SF "NONE \
+				GREEN"|"NONE \
+				LIGHT_CYAN" ZF "NONE \
+				GREEN"|"NONE \
+				LIGHT_CYAN" AF "NONE \
+				GREEN"|"NONE \
+				LIGHT_CYAN" PF "NONE \
+				GREEN"|"NONE \
+				LIGHT_CYAN" CF "NONE \
+				GREEN"|\n"NONE);
+		printf(GREEN"+----+----+----+----+----+----+\n"NONE);
+		printf(GREEN"|"NONE \
+				LIGHT_PURPLE" %-2x "NONE \
+				GREEN"|"NONE \
+				LIGHT_PURPLE" %-2x "NONE \
+				GREEN"|"NONE \
+				LIGHT_PURPLE" %-2x "NONE \
+				GREEN"|"NONE \
+				LIGHT_PURPLE" %-2x "NONE \
+				GREEN"|"NONE \
+				LIGHT_PURPLE" %-2x "NONE \
+				GREEN"|"NONE \
+				LIGHT_PURPLE" %-2x "NONE \
+				GREEN"|\n"NONE,
 				cpu.OF, cpu.SF, cpu.ZF, cpu.AF, cpu.PF, cpu.CF);
-		printf("+----+----+----+----+----+----+\n");
+		printf(GREEN"+----+----+----+----+----+----+\n"NONE);
 	}
 	else if(strcmp(args, "w") == 0) {
 		show_all_wp();
