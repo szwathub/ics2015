@@ -21,6 +21,8 @@
 #include "logic/shr.h"
 #include "logic/shrd.h"
 
+#include "jmp/call.h"
+
 #include "string/rep.h"
 
 #include "misc/misc.h"

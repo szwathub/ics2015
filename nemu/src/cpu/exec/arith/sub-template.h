@@ -2,7 +2,7 @@
 
 #define instr sub
 
-static void do_execute () {
+static void do_execute() {
 	DATA_TYPE result, dest, src;
 	dest = op_dest->val;
 	src = op_src->val;
@@ -12,7 +12,7 @@ static void do_execute () {
 	DATA_TYPE mask4 = (DATA_TYPE)0x0F;
 	OPERAND_W(op_dest, result);
 
-	printf("dest=%x  src=%x  result=%x\n",dest,src,result);
+	// printf("dest=%x  src=%x  result=%x\n",dest,src,result);
 	if (src > 0) {
 		cpu.OF = (result > dest) ? 1 : 0;
 	}
