@@ -12,6 +12,7 @@
 #include "arith/idiv.h"
 #include "arith/div.h"
 #include "arith/sub.h"
+#include "arith/cmp.h"
 
 #include "logic/and.h"
 #include "logic/or.h"
@@ -24,6 +25,7 @@
 #include "logic/test.h"
 
 #include "jmp/call.h"
+#include "jmp/jcc.h"
 
 #include "string/rep.h"
 
