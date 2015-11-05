@@ -2,6 +2,7 @@
 #define __JCC_H__
 
 make_helper(jz_i_b);
+make_helper(jbe_i_b);
 /*
 make_helper(ja_i_b);
 make_helper(jae_i_b);
