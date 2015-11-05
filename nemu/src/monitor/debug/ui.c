@@ -154,6 +154,18 @@ static int cmd_info(char *args) {
 			printf(GREEN"+------+--------------------------------"NONE);
 			printf(GREEN"+------+-------------------------------+\n"NONE);
 		}
+		printf(GREEN"+------+--------------------------------+\n"NONE);
+		printf(GREEN"|"NONE \
+				LIGHT_CYAN" eip  "NONE \
+				GREEN"|"NONE \
+				LIGHT_PURPLE"   0x%-10x"NONE \
+				GREEN"|"NONE \
+				LIGHT_PURPLE"    %-12u"NONE
+				GREEN"|\n"NONE,
+				cpu.eip, cpu.eip);
+		printf(GREEN"+------+--------------------------------+\n"NONE);
+
+
 		printf("\n+----+----+----+----+----+----+\n");
 		printf("| OF | SF | ZF | AF | PF | CF |\n");
 		printf("+----+----+----+----+----+----+\n");
