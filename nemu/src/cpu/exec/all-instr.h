@@ -26,6 +26,7 @@
 
 #include "jmp/call.h"
 #include "jmp/jcc.h"
+#include "jmp/jmp.h"
 
 #include "string/rep.h"
 
