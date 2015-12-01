@@ -67,7 +67,7 @@ make_instr_helper(rm)
 
 #define instr setg
 static void do_execute() {
-    if(cpu.ZF == 0 || cpu.SF == cpu.OF) {
+    if(cpu.ZF == 0 && cpu.SF == cpu.OF) {
         OPERAND_W(op_src, 1);
     }
     else {
@@ -106,7 +106,7 @@ make_instr_helper(rm)
 
 #define instr setle
 static void do_execute() {
-    if(cpu.ZF == 1 && cpu.SF != cpu.OF) {
+    if(cpu.ZF == 1 || cpu.SF != cpu.OF) {
         OPERAND_W(op_src, 1);
     }
     else {
