@@ -12,6 +12,8 @@
 #include "jcc-template.h"
 #undef DATA_BYTE
 
+make_helper_v(jno_i)
+make_helper_v(jle_i)
 /*
 make_helper_v(ja_i)
 make_helper_v(jae_i)
@@ -23,7 +25,7 @@ make_helper_v(jz_i)
 make_helper_v(jg_i)
 make_helper_v(jge_i)
 make_helper_v(jl_i)
-make_helper_v(jle_i)
+
 make_helper_v(jna_i)
 make_helper_v(jnae_i)
 make_helper_v(jnb_i)
@@ -34,7 +36,7 @@ make_helper_v(jng_i)
 make_helper_v(jnge_i)
 make_helper_v(jnl_i)
 make_helper_v(jnle_i)
-make_helper_v(jno_i)
+
 make_helper_v(jnp_i)
 make_helper_v(jns_i)
 make_helper_v(jnz_i)

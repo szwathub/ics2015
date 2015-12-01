@@ -154,34 +154,22 @@ static int cmd_info(char *args) {
 			printf(GREEN"+------+--------------------------------"NONE);
 			printf(GREEN"+------+-------------------------------+\n"NONE);
 		}
-		printf(GREEN"\n+----+----+----+----+----+----+\n"NONE);
+		printf(GREEN"+------+--------------------------------+\n"NONE);
 		printf(GREEN"|"NONE \
-				LIGHT_CYAN" OF "NONE \
+				LIGHT_CYAN" eip  "NONE \
 				GREEN"|"NONE \
-				LIGHT_CYAN" SF "NONE \
+				LIGHT_PURPLE"   0x%-10x"NONE \
 				GREEN"|"NONE \
-				LIGHT_CYAN" ZF "NONE \
-				GREEN"|"NONE \
-				LIGHT_CYAN" AF "NONE \
-				GREEN"|"NONE \
-				LIGHT_CYAN" PF "NONE \
-				GREEN"|"NONE \
-				LIGHT_CYAN" CF "NONE \
-				GREEN"|\n"NONE);
-		printf(GREEN"+----+----+----+----+----+----+\n"NONE);
-		printf(GREEN"|"NONE \
-				LIGHT_PURPLE" %-2x "NONE \
-				GREEN"|"NONE \
-				LIGHT_PURPLE" %-2x "NONE \
-				GREEN"|"NONE \
-				LIGHT_PURPLE" %-2x "NONE \
-				GREEN"|"NONE \
-				LIGHT_PURPLE" %-2x "NONE \
-				GREEN"|"NONE \
-				LIGHT_PURPLE" %-2x "NONE \
-				GREEN"|"NONE \
-				LIGHT_PURPLE" %-2x "NONE \
+				LIGHT_PURPLE"    %-12u"NONE
 				GREEN"|\n"NONE,
+				cpu.eip, cpu.eip);
+		printf(GREEN"+------+--------------------------------+\n"NONE);
+
+
+		printf("\n+----+----+----+----+----+----+\n");
+		printf("| OF | SF | ZF | AF | PF | CF |\n");
+		printf("+----+----+----+----+----+----+\n");
+		printf("| %-2x | %-2x | %-2x | %-2x | %-2x | %-2x |\n",
 				cpu.OF, cpu.SF, cpu.ZF, cpu.AF, cpu.PF, cpu.CF);
 		printf(GREEN"+----+----+----+----+----+----+\n"NONE);
 	}
