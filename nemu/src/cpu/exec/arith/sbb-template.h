@@ -27,7 +27,7 @@ static void do_execute() {
 	cpu.AF = (((dest&mask4) - (src&mask4)) > mask4) ? 1 : 0;
 	cpu.PF = Check_Parity_Flag(result&mask8);
 	cpu.CF = (dest < src) ? 1 : 0;
-	print_asm_template1();
+	print_asm_template2();
 }
 
 make_instr_helper(i2a)
