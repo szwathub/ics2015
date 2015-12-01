@@ -98,15 +98,15 @@ static int cmd_info(char *args) {
 		printf(GREEN"+------+-------------------------------+\n"NONE);
 
 		printf(GREEN"|      |      "NONE \
-				LIGHT_BLUE"HEC"NONE \
+				LIGHT_BLUE"HEX"NONE \
 				GREEN"      |"NONE
 				LIGHT_BLUE"      DEC       "NONE);
 		printf(GREEN"|      |      "NONE \
-				LIGHT_BLUE"HEC"NONE \
+				LIGHT_BLUE"HEX"NONE \
 				GREEN"      |"NONE
 				LIGHT_BLUE"      DEC       "NONE);
 		printf(GREEN"|      |      "NONE \
-				LIGHT_BLUE"HEC"NONE \
+				LIGHT_BLUE"HEX"NONE \
 				GREEN"      |"NONE
 				LIGHT_BLUE"      DEC      "NONE
 				GREEN"|"NONE);
@@ -166,10 +166,34 @@ static int cmd_info(char *args) {
 		printf(GREEN"+------+--------------------------------+\n"NONE);
 
 
-		printf("\n+----+----+----+----+----+----+\n");
-		printf("| OF | SF | ZF | AF | PF | CF |\n");
-		printf("+----+----+----+----+----+----+\n");
-		printf("| %-2x | %-2x | %-2x | %-2x | %-2x | %-2x |\n",
+		printf(GREEN"\n+----+----+----+----+----+----+\n"NONE);
+		printf(GREEN"|"NONE \
+                CYAN" OF "NONE \
+                GREEN"|"NONE \
+                CYAN" SF "NONE \
+                GREEN"|"NONE \
+                CYAN" ZF "NONE \
+                GREEN"|"NONE \
+                CYAN" AF "NONE \
+                GREEN"|"NONE \
+                CYAN" PF "NONE \
+                GREEN"|"NONE \
+                CYAN" CF "NONE \
+                GREEN"|\n"NONE);
+		printf(GREEN"+----+----+----+----+----+----+\n"NONE);
+		printf(GREEN"|"NONE \
+                PURPLE" %-2x "NONE
+                GREEN"|"NONE \
+                PURPLE" %-2x "NONE \
+                GREEN"|"NONE \
+                PURPLE" %-2x "NONE \
+                GREEN"|"NONE \
+                PURPLE" %-2x "NONE \
+                GREEN"|"NONE \
+                PURPLE" %-2x "NONE \
+                GREEN"|"NONE \
+                PURPLE" %-2x "NONE \
+                GREEN"|\n"NONE,
 				cpu.OF, cpu.SF, cpu.ZF, cpu.AF, cpu.PF, cpu.CF);
 		printf(GREEN"+----+----+----+----+----+----+\n"NONE);
 	}
@@ -199,8 +223,9 @@ static int cmd_p(char *args) {
 	bool succ = false;
 	uint32_t result = expr(args, &succ);
 	if(succ) {
-		printf(LIGHT_PURPLE"The Expression: %s \n"NONE, args);
-		printf(LIGHT_PURPLE"The Result: %d\n"NONE, result);
+		printf(LIGHT_PURPLE"The Expression : %s\n"NONE, args);
+		printf(LIGHT_PURPLE"The Result(DEC): %d\n"NONE, result);
+        printf(LIGHT_PURPLE"The Result(HEX): %x\n"NONE, result);
 	}
 	return 0;
 }
