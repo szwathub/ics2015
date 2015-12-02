@@ -135,7 +135,7 @@ helper_fun opcode_table [256] = {
 /* 0x98 */	inv, inv, inv, inv,
 /* 0x9c */	inv, inv, inv, inv,
 /* 0xa0 */	mov_moffs2a_b, mov_moffs2a_v, mov_a2moffs_b, mov_a2moffs_v,
-/* 0xa4 */	inv, inv, cmps_rm_b, cmps_rm_v,
+/* 0xa4 */	movs_rm_b, movs_rm_v, cmps_rm_b, cmps_rm_v,
 /* 0xa8 */	test_i2a_b, test_i2a_v, stos_rm_b, stos_rm_v,
 /* 0xac */	inv, inv, inv, inv,
 /* 0xb0 */	mov_i2r_b, mov_i2r_b, mov_i2r_b, mov_i2r_b,
