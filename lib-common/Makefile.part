@@ -7,3 +7,8 @@ $(FLOAT): $(FLOAT_OBJ)
 
 # TODO: write a rule for generating $(FLOAT_OBJ)
 
+FLOAT_CFLAGS := -m32 -fno-builtin -c -O2
+FLOAT_OBJ_DIR := obj/$(LIB_COMMON_DIR)
+
+$(FLOAT_OBJ_DIR)%.o: $(LIB_COMMON_DIR)%.c $(LIB_COMMON_DIR)%.h
+	$(call make_command, $(CC), $(FLOAT_CFLAGS) -I$(LIB_COMMON_DIR) -I$(NEWLIBC_DIR)/include -I$(nemu_INC_DIR), cc $<, $<)
