@@ -28,8 +28,9 @@ make_helper(concat(call_rm_, SUFFIX)){
     else if(4 == DATA_BYTE){
         cpu.esp -= 4;
         MEM_W(cpu.esp, cpu.eip + len + 1);
-        cpu.eip = op_src->val;
+        cpu.eip = MEM_R(op_src->val);
     }
+    printf("%x\n%x\n", cpu.eip, MEM_R(op_src->val));
     print_asm_template1();
 
     return 0;

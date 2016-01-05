@@ -3,13 +3,19 @@
 #define instr xor
 
 static void do_execute () {
-	DATA_TYPE result = op_dest->val ^ op_src->val;
-	OPERAND_W(op_dest, result);
+    DATA_TYPE result = op_dest->val ^ op_src->val;
+    DATA_TYPE mask8 = (DATA_TYPE)0xFF;
 
-	/* TODO: Update EFLAGS. */
-	panic("please implement me");
+    OPERAND_W(op_dest, result);
 
-	print_asm_template2();
+    cpu.ZF = result ? 0 : 1;
+    cpu.CF = 0;
+    cpu.OF = 0;
+    cpu.PF = Check_Parity_Flag(result&mask8);
+
+    cpu.SF = MSB(result);
+
+    print_asm_template2();
 }
 
 make_instr_helper(i2a)
