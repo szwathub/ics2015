@@ -266,7 +266,7 @@ static int cmd_scan(char *args) {
 	return 0;
 }
 
-/* TODO: Implement set watchpoint
+/* Implement set watchpoint
  * @describe Set a watchpoint
  * @param {string} args
  */
@@ -288,11 +288,29 @@ static int cmd_delete(char *args) {
 	return 0;
 }
 
+extern bool find_stack(int addr, char *str);
 /* TODO
  *
  */
 static int cmd_bt(char *args) {
-		return 0;
+    int ebp = cpu.ebp;
+    int eip = cpu.eip;
+    int cnt = 0;
+    char str[32];
+    
+    if(!find_stack(eip, str)) {
+        printf("No stack.\n");
+        return 0;
+    }
+    while(find_stack(eip, str)) {
+        printf("#%d eip=0x%x in %s(%d, %d, %d, %d)\n", ++ cnt, eip, str,
+        swaddr_read(ebp + 0x8, 4), swaddr_read(ebp + 0xc, 4),
+        swaddr_read(ebp + 0x10, 4), swaddr_read(ebp + 0x14, 4));
+        eip = swaddr_read(ebp + 4, 4);
+        ebp = swaddr_read(ebp, 4);
+    }
+
+    return 0;
 }
 
 static struct {
@@ -309,7 +327,7 @@ static struct {
 	{ "x", "Scan memory", cmd_scan},
 	{ "w", "Set a watchpoint", cmd_w},
 	{ "d", "Delete a watchpoint", cmd_delete},
-	{ "bt", "Print ", cmd_bt}
+	{ "bt", "Print backtrace", cmd_bt}
 
 	/* Add more commands */
 

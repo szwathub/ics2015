@@ -83,11 +83,22 @@ void load_elf_tables(int argc, char *argv[]) {
 
 int find_var(char *str) {
     int i;
-    for(i = 0; i < nr_symtab_entry; ++ i) {
-        //printf("symtab[%d].st_info: %d\t%s\n", i, symtab[i].st_info, strtab+symtab[i].st_name);
+    for(i = 0; i < nr_symtab_entry; i++) {
+        //printf("%d: %x\t%s\n", i, symtab[i].st_value, strtab+symtab[i].st_name);
         if(strcmp(str, strtab + symtab[i].st_name) == 0) {
             return symtab[i].st_value;
         }
     }
     return -1;
+}
+
+bool find_stack(int addr, char *str) {
+    int i;
+    for(i = 0; i < nr_symtab_entry; i++) {
+        if(addr >= symtab[i].st_value && addr < symtab[i].st_value + symtab[i].st_size) {
+            strcpy(str, strtab + symtab[i].st_name);
+            return true;
+        }
+    }
+    return false;
 }
