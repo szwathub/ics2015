@@ -134,7 +134,8 @@ static bool make_token(char *e) {
                     case '-':
                         if(nr_token == 0 || (tokens[nr_token - 1].type != REG
                             && tokens[nr_token - 1].type != HEX_NUM
-                            && tokens[nr_token - 1].type != DEC_NUM)) {
+                            && tokens[nr_token - 1].type != DEC_NUM
+                            && tokens[nr_token - 1].type != VAR)) {
                                 tokens[nr_token].type = NEG;
                         }
                         else {
@@ -147,7 +148,8 @@ static bool make_token(char *e) {
                     case '*':
                         if(nr_token == 0 || (tokens[nr_token - 1].type != REG
                             && tokens[nr_token - 1].type != HEX_NUM
-                            && tokens[nr_token - 1].type != DEC_NUM)) {
+                            && tokens[nr_token - 1].type != DEC_NUM
+                            && tokens[nr_token - 1].type != VAR)) {
                                 tokens[nr_token].type = DEREF;
                         }
                         else {
