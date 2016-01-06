@@ -2,7 +2,7 @@
 
 #define instr cmp
 static void do_execute() {
-    DATA_TYPE result = op_dest->val - op_src->val;
+    DATA_TYPE result = op_dest->val - (int32_t)(DATA_TYPE_S)op_src->val;
 
 
     DATA_TYPE mask8 = (DATA_TYPE)0xFF;
@@ -12,7 +12,7 @@ static void do_execute() {
     cpu.AF = (((op_dest->val & mask4) - (op_src->val & mask4)) > mask4) ? 1 : 0;
     cpu.PF = Check_Parity_Flag(result & mask8);
 
-    cpu.SF = ((result >> (sizeof(DATA_BYTE) * 8 - 1)) == 1) ? 1 : 0;
+    cpu.SF = MSB(result);
     if (op_src->val > 0) {
 		cpu.OF = (result > op_dest->val) ? 1 : 0;
 	}

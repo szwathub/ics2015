@@ -49,3 +49,9 @@ make_helper(ret_i_w){
 
     return 0;
 }
+
+make_helper(cld){
+    cpu.DF = 0;
+    print_asm("cld");
+    return 1;
+}

@@ -4,6 +4,9 @@
 static void do_execute() {
     if(cpu.ZF == 1) {
         cpu.eip += (int32_t)(DATA_TYPE_S)op_src->val;
+        if(DATA_BYTE == 2) {
+            cpu.eip &= 0x0000ffff;
+        }
     }
     print_asm_template1();
 }

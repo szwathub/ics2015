@@ -7,5 +7,6 @@ make_helper(lea);
 make_helper(leave);
 make_helper(ret);
 make_helper(ret_i_w);
+make_helper(cld);
 
 #endif
